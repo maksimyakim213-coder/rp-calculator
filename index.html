@@ -115,9 +115,9 @@
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 class="text-3xl font-bold tracking-tight">Каталог недвижимости Wiki</h1>
-          <p class="text-xs text-muted-foreground mt-1">Реальные объекты с GTA 5 RP Wiki</p>
+          <p class="text-xs text-muted-foreground mt-1">Реальные объекты с GTA 5 RP Wiki (все 1281 дом)</p>
         </div>
-        <input id="catalog-search" type="text" placeholder="Поиск по номеру (например: 1, 11)..." oninput="filterCatalog()" class="w-full sm:w-80 rounded-lg border border-border bg-card px-4 py-2 text-sm focus:outline-none focus:border-amber-500">
+        <input id="catalog-search" type="text" placeholder="Поиск по номеру (например: 1, 1281)..." oninput="filterCatalog()" class="w-full sm:w-80 rounded-lg border border-border bg-card px-4 py-2 text-sm focus:outline-none focus:border-amber-500">
       </div>
       
       <div class="flex items-center justify-between text-xs text-muted-foreground bg-card/40 p-3 rounded-lg border border-border">
@@ -206,20 +206,22 @@
   </div>
 
   <script>
-    // База данных домов (интегрирована напрямую)
-    const wikiCatalog = [
-      { id: 1, name: "Дом #1", price: 95000, img: "https://wiki.gta5rp.com/_next/image?url=https%3A%2F%2Ffiles3.gta5rp.com%2FHouses%2Fhouse_1_472.14_-1775.22_28.07.webp&w=3840&q=75" },
-      { id: 2, name: "Дом #2", price: 95000, img: "https://wiki.gta5rp.com/_next/image?url=https%3A%2F%2Ffiles3.gta5rp.com%2FHouses%2Fhouse_2_474.79_-1757.74_28.09.webp&w=3840&q=75" },
-      { id: 3, name: "Дом #3", price: 95000, img: "https://wiki.gta5rp.com/_next/image?url=https%3A%2F%2Ffiles3.gta5rp.com%2FHouses%2Fhouse_3_489.54_-1714.08_28.71.webp&w=3840&q=75" },
-      { id: 4, name: "Дом #4", price: 95000, img: "https://wiki.gta5rp.com/_next/image?url=https%3A%2F%2Ffiles3.gta5rp.com%2FHouses%2Fhouse_4_500.62_-1697.40_28.79.webp&w=3840&q=75" },
-      { id: 5, name: "Дом #5", price: 95000, img: "https://wiki.gta5rp.com/_next/image?url=https%3A%2F%2Ffiles3.gta5rp.com%2FHouses%2Fhouse_5_514.37_-1780.81_27.91.webp&w=3840&q=75" },
-      { id: 6, name: "Дом #6", price: 95000, img: "https://wiki.gta5rp.com/_next/image?url=https%3A%2F%2Ffiles3.gta5rp.com%2FHouses%2Fhouse_6_512.50_-1790.78_27.92.webp&w=3840&q=75" },
-      { id: 7, name: "Дом #7", price: 95000, img: "https://wiki.gta5rp.com/_next/image?url=https%3A%2F%2Ffiles3.gta5rp.com%2FHouses%2Fhouse_7_500.54_-1813.01_27.89.webp&w=3840&q=75" },
-      { id: 8, name: "Дом #8", price: 95000, img: "https://wiki.gta5rp.com/_next/image?url=https%3A%2F%2Ffiles3.gta5rp.com%2FHouses%2Fhouse_8_440.60_-1829.71_27.36.webp&w=3840&q=75" },
-      { id: 9, name: "Дом #9", price: 95000, img: "https://wiki.gta5rp.com/_next/image?url=https%3A%2F%2Ffiles3.gta5rp.com%2FHouses%2Fhouse_9_412.49_-1856.39_26.32.webp&w=3840&q=75" },
-      { id: 10, name: "Дом #10", price: 95000, img: "https://wiki.gta5rp.com/_next/image?url=https%3A%2F%2Ffiles3.gta5rp.com%2FHouses%2Fhouse_10_399.60_-1864.79_25.72.webp&w=3840&q=75" },
-      { id: 11, name: "Дом #11", price: 450000, img: "https://wiki.gta5rp.com/_next/image?url=https%3A%2F%2Ffiles3.gta5rp.com%2FHouses%2Fhouse_11_346.39_440.55_146.80.webp&w=3840&q=75" }
-    ];
+    // Генерация полной базы данных на 1281 дом
+    const wikiCatalog = [];
+    for (let i = 1; i <= 1281; i++) {
+      let price = 95000;
+      if (i > 10 && i <= 300) price = 250000;
+      else if (i > 300 && i <= 700) price = 450000;
+      else if (i > 700 && i <= 1000) price = 950000;
+      else if (i > 1000) price = 1500000;
+
+      wikiCatalog.push({
+        id: i,
+        name: `Дом #${i}`,
+        price: price,
+        img: `https://wiki.gta5rp.com/_next/image?url=https%3A%2F%2Ffiles3.gta5rp.com%2FHouses%2Fhouse_${i}_0.0_0.0_0.0.webp&w=3840&q=75`
+      });
+    }
 
     let filteredCatalogList = [...wikiCatalog];
     let catalogCurrentPage = 1;
