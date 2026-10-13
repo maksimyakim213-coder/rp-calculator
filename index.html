@@ -3,286 +3,346 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Калькулятор перекупа | RP Calculator</title>
-  <style>
-    :root {
-      --bg-color: #0b0b0e;
-      --card-bg: #16161e;
-      --card-border: #2a2a38;
-      --accent: #f39c12;
-      --text-main: #f5f6fa;
-      --text-muted: #a4b0be;
-      --success: #2ed573;
-      --danger: #ff4757;
+  <title>Калькулятор перекупа и БП | RP Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            background: '#09090b',
+            foreground: '#fafafa',
+            card: '#121216',
+            border: '#27272a',
+            muted: '#71717a',
+            'muted-foreground': '#a1a1aa',
+            primary: '#f59e0b',
+            'primary-foreground': '#000000',
+            secondary: '#27272a',
+            'secondary-foreground': '#fafafa',
+            destructive: '#ef4444',
+          }
+        }
+      }
     }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
-    
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 16px;
-    }
-
-    .app-container {
-      width: 100%;
-      max-width: 480px;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-      overflow: hidden;
-    }
-
-    .nav-tabs {
-      display: flex;
-      background: #111115;
-      border-bottom: 1px solid var(--card-border);
-      overflow-x: auto;
-    }
-
-    .tab-btn {
-      flex: 1;
-      padding: 14px 10px;
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.2s;
-      white-space: nowrap;
-      text-align: center;
-    }
-
-    .tab-btn:hover {
-      color: #fff;
-    }
-
-    .tab-btn.active {
-      color: var(--accent);
-      background: rgba(243, 156, 18, 0.05);
-      border-bottom: 2px solid var(--accent);
-    }
-
-    .pane {
-      padding: 24px;
-      display: none;
-    }
-
-    .pane.active {
-      display: block;
-    }
-
-    h2 {
-      font-size: 18px;
-      margin-bottom: 16px;
-      color: #fff;
-    }
-
-    .field {
-      margin-bottom: 14px;
-    }
-
-    label {
-      display: block;
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-      text-transform: uppercase;
-    }
-
-    input, select {
-      width: 100%;
-      padding: 12px;
-      background: #1e1e28;
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      color: #fff;
-      font-size: 15px;
-      outline: none;
-    }
-
-    input:focus, select:focus {
-      border-color: var(--accent);
-    }
-
-    .results {
-      margin-top: 20px;
-      background: #111115;
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 16px;
-    }
-
-    .row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      font-size: 14px;
-      color: var(--text-muted);
-    }
-
-    .row:last-child {
-      margin-bottom: 0;
-    }
-
-    .val {
-      font-weight: 600;
-      color: #fff;
-    }
-
-    .divider {
-      height: 1px;
-      background: var(--card-border);
-      margin: 10px 0;
-    }
-
-    .profit { color: var(--success); font-weight: bold; font-size: 17px; }
-    .loss { color: var(--danger); font-weight: bold; font-size: 17px; }
-  </style>
+  </script>
 </head>
-<body>
+<body class="bg-background text-foreground min-h-screen font-sans antialiased selection:bg-amber-500 selection:text-black">
 
-<div class="app-container">
-  <div class="nav-tabs">
-    <button class="tab-btn active" onclick="switchTab('resell', this)">💰 Перекуп</button>
-    <button class="tab-btn" onclick="switchTab('bp', this)">🎮 Фарм БП</button>
-    <button class="tab-btn" onclick="switchTab('rent', this)">🚗 Аренда</button>
-  </div>
-
-  <!-- Перекуп -->
-  <div id="resell" class="pane active">
-    <h2>Калькулятор перекупа</h2>
-    <div class="field">
-      <label>Цена покупки ($)</label>
-      <input type="number" id="r-buy" placeholder="1000000" oninput="calcResell()">
-    </div>
-    <div class="field">
-      <label>Цена продажи ($)</label>
-      <input type="number" id="r-sell" placeholder="1250000" oninput="calcResell()">
-    </div>
-    <div class="field">
-      <label>Комиссия площадки</label>
-      <select id="r-fee" onchange="calcResell()">
-        <option value="0">С рук / Перевод (0%)</option>
-        <option value="1">Банк (1%)</option>
-        <option value="3">Торговая площадка (3%)</option>
-        <option value="5">Рынок / Аукцион (5%)</option>
-      </select>
-    </div>
-
-    <div class="results">
-      <div class="row"><span>Комиссия:</span><span id="r-res-fee" class="val">$0</span></div>
-      <div class="row"><span>Чистыми на руки:</span><span id="r-res-net" class="val">$0</span></div>
-      <div class="divider"></div>
-      <div class="row"><span>Чистая прибыль:</span><span id="r-res-profit" class="profit">$0</span></div>
-      <div class="row"><span>ROI (Окупаемость):</span><span id="r-res-roi" class="val">0%</span></div>
-    </div>
-  </div>
-
-  <!-- Фарм БП -->
-  <div id="bp" class="pane">
-    <h2>Калькулятор Battle Pass</h2>
-    <div class="field">
-      <label>Текущий уровень</label>
-      <input type="number" id="bp-curr" placeholder="10" oninput="calcBP()">
-    </div>
-    <div class="field">
-      <label>Целевой уровень</label>
-      <input type="number" id="bp-target" placeholder="100" oninput="calcBP()">
-    </div>
-    <div class="field">
-      <label>Текущий опыт (EXP)</label>
-      <input type="number" id="bp-exp" placeholder="200" oninput="calcBP()">
-    </div>
-
-    <div class="results">
-      <div class="row"><span>Осталось уровней:</span><span id="bp-res-lvl" class="val">0</span></div>
-      <div class="row"><span>Всего EXP нужно:</span><span id="bp-res-exp" class="val">0 EXP</span></div>
-      <div class="divider"></div>
-      <div class="row"><span>Дней (~1000 EXP/день):</span><span id="bp-res-days" class="val" style="color:var(--accent);">0 дн.</span></div>
-    </div>
-  </div>
-
-  <!-- Аренда -->
-  <div id="rent" class="pane">
-    <h2>Калькулятор аренды</h2>
-    <div class="field">
-      <label>Стоимость аренды в час ($)</label>
-      <input type="number" id="ar-rate" placeholder="50000" oninput="calcRent()">
-    </div>
-    <div class="field">
-      <label>Количество часов</label>
-      <input type="number" id="ar-hours" placeholder="5" oninput="calcRent()">
-    </div>
-
-    <div class="results">
-      <div class="row"><span>Доход от аренды:</span><span id="ar-res-total" class="profit">$0</span></div>
-    </div>
-  </div>
-</div>
-
-<script>
-  function switchTab(id, btn) {
-    document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    btn.classList.add('active');
-  }
-
-  function calcResell() {
-    const buy = parseFloat(document.getElementById('r-buy').value) || 0;
-    const sell = parseFloat(document.getElementById('r-sell').value) || 0;
-    const feePct = parseFloat(document.getElementById('r-fee').value) || 0;
-
-    const fee = sell * (feePct / 100);
-    const net = sell - fee;
-    const profit = net - buy;
-    const roi = buy > 0 ? ((profit / buy) * 100).toFixed(2) : 0;
-
-    document.getElementById('r-res-fee').innerText = '$' + fee.toLocaleString('ru-RU');
-    document.getElementById('r-res-net').innerText = '$' + net.toLocaleString('ru-RU');
+  <div class="max-w-[1400px] mx-auto px-4 py-8">
     
-    const pEl = document.getElementById('r-res-profit');
-    pEl.innerText = (profit >= 0 ? '+' : '') + '$' + profit.toLocaleString('ru-RU');
-    pEl.className = profit >= 0 ? 'profit' : 'loss';
-    
-    document.getElementById('r-res-roi').innerText = roi + '%';
-  }
+    <!-- Переключение между вкладками -->
+    <div class="flex gap-2 mb-6 border-b border-border pb-4">
+      <button onclick="switchMainTab('resell')" id="btn-tab-resell" class="px-5 py-2.5 rounded-lg text-sm font-semibold bg-primary text-primary-foreground transition-all cursor-pointer">💰 Перекуп</button>
+      <button onclick="switchMainTab('bp')" id="btn-tab-bp" class="px-5 py-2.5 rounded-lg text-sm font-semibold bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-all cursor-pointer">🎮 Фарм БП</button>
+    </div>
 
-  function calcBP() {
-    const curr = parseInt(document.getElementById('bp-curr').value) || 0;
-    const target = parseInt(document.getElementById('bp-target').value) || 0;
-    const exp = parseInt(document.getElementById('bp-exp').value) || 0;
+    <!-- ================= ВКЛАДКА 1: ПЕРЕКУП ================= -->
+    <div id="tab-resell" class="space-y-6">
+      <div class="flex items-center justify-between">
+        <h1 class="text-3xl font-bold tracking-tight">Калькулятор перекупа</h1>
+        <span class="text-xs px-2.5 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-full font-medium">GTA 5 RP</span>
+      </div>
 
-    if (target > curr) {
-      const lvls = target - curr;
-      const totalExp = (lvls * 1000) - exp;
-      const days = Math.ceil(Math.max(0, totalExp) / 1000);
+      <!-- Сводка -->
+      <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div>
+            <span class="text-xs text-muted-foreground uppercase tracking-wider">Чистый доход</span>
+            <div id="stat-net" class="text-2xl sm:text-3xl font-bold mt-1 text-emerald-400">$0</div>
+          </div>
+          <div>
+            <span class="text-xs text-muted-foreground uppercase tracking-wider">Доходность (ROI)</span>
+            <div id="stat-roi" class="text-2xl sm:text-3xl font-bold mt-1 text-amber-400">0 %</div>
+          </div>
+          <div>
+            <span class="text-xs text-muted-foreground uppercase tracking-wider">Оборот</span>
+            <div id="stat-turnover" class="text-2xl sm:text-3xl font-bold mt-1">$0</div>
+          </div>
+        </div>
+      </div>
 
-      document.getElementById('bp-res-lvl').innerText = lvls;
-      document.getElementById('bp-res-exp').innerText = Math.max(0, totalExp).toLocaleString('ru-RU') + ' EXP';
-      document.getElementById('bp-res-days').innerText = days + ' дн.';
-    } else {
-      document.getElementById('bp-res-lvl').innerText = '0';
-      document.getElementById('bp-res-exp').innerText = '0 EXP';
-      document.getElementById('bp-res-days').innerText = '0 дн.';
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        <div class="space-y-6">
+          <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+            <div class="text-sm font-semibold text-muted-foreground mb-3">Добавление предмета</div>
+            <div class="flex flex-wrap gap-3">
+              <button onclick="openManualModal()" class="inline-flex cursor-pointer items-center justify-center rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 transition-colors gap-2 shadow">Ввести вручную</button>
+              <button onclick="openCatalogModal()" class="inline-flex cursor-pointer items-center justify-center rounded-lg text-sm font-medium border border-border bg-secondary hover:bg-secondary/80 h-10 px-4 py-2 transition-colors gap-2">Выбрать из каталога</button>
+            </div>
+          </div>
+
+          <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+            <div class="text-sm font-semibold text-muted-foreground mb-3">Добавить доход / расход (аренда лавки и т.д.)</div>
+            <div class="flex flex-col sm:flex-row gap-3">
+              <input id="extra-amount" type="number" placeholder="Сумма (+ / -)" class="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:border-amber-500">
+              <input id="extra-desc" type="text" placeholder="Описание" class="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:border-amber-500">
+              <button onclick="addExtraRecord()" class="inline-flex cursor-pointer items-center justify-center rounded-lg text-sm font-medium bg-secondary hover:bg-secondary/80 h-10 px-4 py-2 shrink-0">Добавить</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <div class="text-sm font-semibold text-muted-foreground">История сделок</div>
+            <button onclick="clearHistory()" class="text-muted-foreground hover:text-destructive h-9 w-9 flex items-center justify-center rounded-lg cursor-pointer transition-colors">🗑</button>
+          </div>
+          <div id="history-container" class="space-y-3 max-h-[450px] overflow-y-auto pr-2">
+            <div class="text-sm text-muted-foreground text-center py-8">История пуста.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Таблица -->
+      <div class="mt-8">
+        <h3 class="text-xl font-bold tracking-tight mb-4">Логи продаж</h3>
+        <div class="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-border bg-secondary/30 text-xs text-muted-foreground uppercase tracking-wider">
+                  <th class="p-4 font-semibold">Предмет</th>
+                  <th class="p-4 font-semibold">Покупка</th>
+                  <th class="p-4 font-semibold">Продажа</th>
+                  <th class="p-4 font-semibold">Комиссия</th>
+                  <th class="p-4 font-semibold">Прибыль</th>
+                  <th class="p-4 font-semibold">ROI</th>
+                  <th class="p-4 text-right font-semibold">Действие</th>
+                </tr>
+              </thead>
+              <tbody id="logs-table-body" class="divide-y divide-border text-sm">
+                <tr><td colspan="7" class="p-6 text-center text-muted-foreground">Нет данных</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= ВКЛАДКА 2: ФАРМ БП (Bonus Points) ================= -->
+    <div id="tab-bp" class="space-y-6 hidden">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <h1 class="text-3xl font-semibold tracking-tight flex items-center gap-2">
+          Bonus Points 
+          <span class="text-xs px-2.5 py-0.5 bg-primary text-primary-foreground rounded-full font-medium">New</span>
+          <span class="text-xs px-2.5 py-0.5 bg-secondary text-secondary-foreground rounded-full font-medium">Beta</span>
+        </h1>
+        <div class="flex items-center gap-2 p-2 px-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-md font-bold text-lg shadow-sm">
+          <span id="bp-total-score">0</span> BP
+        </div>
+      </div>
+
+      <!-- Блок множителей -->
+      <div class="rounded-lg border border-border p-4 bg-muted/10">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="font-medium text-sm">Множители Bonus Points:</span>
+          <span id="bp-multiplier-badge" class="px-2 py-0.5 text-xs font-bold rounded bg-primary text-black">x1</span>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="setMultiplier(1, 'x1', this)" class="bp-mult-btn px-3 py-1.5 rounded-md text-sm font-medium border border-border bg-background hover:bg-accent transition-colors cursor-pointer">Обычный (x1)</button>
+          <button onclick="setMultiplier(2, 'x2', this)" class="bp-mult-btn px-3 py-1.5 rounded-md text-sm font-medium border border-border bg-background hover:bg-accent transition-colors cursor-pointer">⚡ Акция x2</button>
+          <button onclick="setMultiplier(1.5, 'VIP', this)" class="bp-mult-btn px-3 py-1.5 rounded-md text-sm font-medium border border-border bg-background hover:bg-accent transition-colors cursor-pointer">👑 VIP</button>
+        </div>
+      </div>
+
+      <!-- Секция заданий -->
+      <div class="space-y-4">
+        <h2 class="text-xl font-semibold tracking-tight">Лёгкие задания</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="bp-tasks-grid">
+          <!-- Карточки генерируются скриптом -->
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Модальные окна перекупа -->
+  <div id="manual-modal" class="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-card border border-border rounded-xl max-w-md w-full p-6 shadow-xl relative">
+      <h3 class="text-lg font-bold mb-4">Добавить сделку вручную</h3>
+      <div class="space-y-4">
+        <div><label class="block text-xs text-muted-foreground uppercase font-semibold mb-1">Название</label><input id="m-name" type="text" class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:border-amber-500"></div>
+        <div><label class="block text-xs text-muted-foreground uppercase font-semibold mb-1">Покупка ($)</label><input id="m-buy" type="number" class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:border-amber-500"></div>
+        <div><label class="block text-xs text-muted-foreground uppercase font-semibold mb-1">Продажа ($)</label><input id="m-sell" type="number" class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:border-amber-500"></div>
+        <div><label class="block text-xs text-muted-foreground uppercase font-semibold mb-1">Комиссия</label>
+          <select id="m-fee" class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:border-amber-500">
+            <option value="0">С рук (0%)</option><option value="1">Банк (1%)</option><option value="3">Торговая площадка (3%)</option><option value="5" selected>Рынок / Аукцион (5%)</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex justify-end gap-3 mt-6">
+        <button onclick="closeManualModal()" class="px-4 py-2 rounded-lg text-sm border border-border cursor-pointer">Отмена</button>
+        <button onclick="saveManualItem()" class="px-4 py-2 rounded-lg text-sm bg-primary text-primary-foreground font-medium cursor-pointer">Добавить</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="catalog-modal" class="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-card border border-border rounded-xl max-w-lg w-full p-6 shadow-xl relative">
+      <h3 class="text-lg font-bold mb-4">Каталог GTA 5 RP</h3>
+      <div class="space-y-3 max-h-[350px] overflow-y-auto pr-1">
+        <div onclick="selectCatalogItem('Тяжелая снайперская винтовка Mk II', 250000, 320000)" class="p-3 border border-border rounded-lg bg-background/50 hover:border-amber-500 cursor-pointer flex justify-between items-center"><div><div class="font-medium text-sm">Снайперская винтовка Mk II</div><div class="text-xs text-muted-foreground">Оружие</div></div><span class="text-xs text-amber-500 font-semibold">Выбрать</span></div>
+        <div onclick="selectCatalogItem('Бронежилет (100%)', 12000, 18000)" class="p-3 border border-border rounded-lg bg-background/50 hover:border-amber-500 cursor-pointer flex justify-between items-center"><div><div class="font-medium text-sm">Бронежилет (100%)</div><div class="text-xs text-muted-foreground">Экипировка</div></div><span class="text-xs text-amber-500 font-semibold">Выбрать</span></div>
+        <div onclick="selectCatalogItem('Материалы (1000 шт.)', 115000, 145000)" class="p-3 border border-border rounded-lg bg-background/50 hover:border-amber-500 cursor-pointer flex justify-between items-center"><div><div class="font-medium text-sm">Материалы (1000 шт.)</div><div class="text-xs text-muted-foreground">Ресурсы</div></div><span class="text-xs text-amber-500 font-semibold">Выбрать</span></div>
+      </div>
+      <div class="flex justify-end mt-6"><button onclick="closeCatalogModal()" class="px-4 py-2 rounded-lg text-sm border border-border cursor-pointer">Закрыть</button></div>
+    </div>
+  </div>
+
+  <script>
+    // Переключение вкладок приложения
+    function switchMainTab(tab) {
+      document.getElementById('tab-resell').classList.toggle('hidden', tab !== 'resell');
+      document.getElementById('tab-bp').classList.toggle('hidden', tab !== 'bp');
+      document.getElementById('btn-tab-resell').className = tab === 'resell' ? 'px-5 py-2.5 rounded-lg text-sm font-semibold bg-primary text-primary-foreground transition-all cursor-pointer' : 'px-5 py-2.5 rounded-lg text-sm font-semibold bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-all cursor-pointer';
+      document.getElementById('btn-tab-bp').className = tab === 'bp' ? 'px-5 py-2.5 rounded-lg text-sm font-semibold bg-primary text-primary-foreground transition-all cursor-pointer' : 'px-5 py-2.5 rounded-lg text-sm font-semibold bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-all cursor-pointer';
     }
-  }
 
-  function calcRent() {
-    const rate = parseFloat(document.getElementById('ar-rate').value) || 0;
-    const hours = parseFloat(document.getElementById('ar-hours').value) || 0;
-    const total = rate * hours;
+    // Логика БП (Bonus Points)
+    let bpMultiplier = parseFloat(localStorage.getItem('bp_mult')) || 1;
+    let completedTasks = JSON.parse(localStorage.getItem('bp_completed')) || {};
 
-    document.getElementById('ar-res-total').innerText = '+' + '$' + total.toLocaleString('ru-RU');
-  }
-</script>
+    const bpTasks = [
+      { id: 't1', title: 'Купить лотерейный билет', reward: 1 },
+      { id: 't2', title: 'Посетить любой сайт в браузере', reward: 1 },
+      { id: 't3', title: 'Поставить лайк любой анкете в Match', reward: 1 },
+      { id: 't4', title: 'Зайти в любой канал в Brawl', reward: 1 },
+      { id: 't5', title: 'Добавить 5 видео в кинотеатр', reward: 1 }
+    ];
 
+    function setMultiplier(val, name, btn) {
+      bpMultiplier = val;
+      localStorage.setItem('bp_mult', val);
+      document.getElementById('bp-multiplier-badge').innerText = name;
+      renderBP();
+    }
+
+    function toggleTask(id) {
+      completedTasks[id] = !completedTasks[id];
+      localStorage.setItem('bp_completed', JSON.stringify(completedTasks));
+      renderBP();
+    }
+
+    function renderBP() {
+      const grid = document.getElementById('bp-tasks-grid');
+      grid.innerHTML = '';
+      let totalBp = 0;
+
+      bpTasks.forEach(task => {
+        const isDone = completedTasks[task.id];
+        const finalReward = task.reward * bpMultiplier;
+        if (isDone) totalBp += finalReward;
+
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.onclick = () => toggleTask(task.id);
+        card.className = `relative rounded-lg flex flex-col border p-5 text-left transition-all duration-200 cursor-pointer ${isDone ? 'border-primary bg-primary/10' : 'border-border hover:bg-foreground/5'}`;
+        card.innerHTML = `
+          <h3 class="text-sm font-medium">${task.title}</h3>
+          <span class="text-lg font-semibold mt-2">${finalReward} BP</span>
+          <span class="text-xs text-muted-foreground mt-3 mt-auto">${isDone ? 'Выполнено ✓' : 'Нажмите чтобы отметить'}</span>
+          <div class="pointer-events-none absolute inset-0 flex items-center justify-center rounded-lg bg-black/20 transition-opacity duration-200 ${isDone ? 'opacity-100' : 'opacity-0'}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-10 h-10 text-amber-400"><path d="M20 6 9 17l-5-5"/></svg>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      document.getElementById('bp-total-score').innerText = totalBp;
+    }
+
+    // Логика перекупа (сохранена)
+    let items = JSON.parse(localStorage.getItem('rp_calc_items')) || [];
+    function saveAndRender() { localStorage.setItem('rp_calc_items', JSON.stringify(items)); renderResell(); }
+    function openManualModal() { document.getElementById('manual-modal').classList.remove('hidden'); }
+    function closeManualModal() { document.getElementById('manual-modal').classList.add('hidden'); }
+    function openCatalogModal() { document.getElementById('catalog-modal').classList.remove('hidden'); }
+    function closeCatalogModal() { document.getElementById('catalog-modal').classList.add('hidden'); }
+
+    function selectCatalogItem(name, buy, sell) {
+      closeCatalogModal();
+      openManualModal();
+      document.getElementById('m-name').value = name;
+      document.getElementById('m-buy').value = buy;
+      document.getElementById('m-sell').value = sell;
+    }
+
+    function saveManualItem() {
+      const name = document.getElementById('m-name').value.trim() || 'Предмет';
+      const buy = parseFloat(document.getElementById('m-buy').value) || 0;
+      const sell = parseFloat(document.getElementById('m-sell').value) || 0;
+      const feePct = parseFloat(document.getElementById('m-fee').value) || 0;
+      const fee = sell * (feePct / 100);
+      const profit = (sell - fee) - buy;
+      const roi = buy > 0 ? (profit / buy) * 100 : 0;
+
+      items.push({ id: Date.now(), type: 'trade', name, buy, sell, fee, profit, roi });
+      closeManualModal();
+      document.getElementById('m-name').value = '';
+      document.getElementById('m-buy').value = '';
+      document.getElementById('m-sell').value = '';
+      saveAndRender();
+    }
+
+    function addExtraRecord() {
+      const amount = parseFloat(document.getElementById('extra-amount').value) || 0;
+      const desc = document.getElementById('extra-desc').value.trim() || 'Корректировка';
+      if (amount === 0) return;
+      items.push({ id: Date.now(), type: 'extra', name: desc, buy: 0, sell: 0, fee: 0, profit: amount, roi: 0 });
+      document.getElementById('extra-amount').value = '';
+      document.getElementById('extra-desc').value = '';
+      saveAndRender();
+    }
+
+    function deleteItem(id) { items = items.filter(i => i.id !== id); saveAndRender(); }
+    function clearHistory() { if (confirm('Очистить историю?')) { items = []; saveAndRender(); } }
+    function formatMoney(num) { return (num > 0 ? '+' : '') + '$' + Math.round(num).toLocaleString('ru-RU'); }
+
+    function renderResell() {
+      let totalNet = 0, totalTurnover = 0, totalInvested = 0;
+      items.forEach(i => {
+        totalNet += i.profit;
+        if (i.type === 'trade') { totalTurnover += i.sell; totalInvested += i.buy; }
+      });
+      const totalRoi = totalInvested > 0 ? ((totalNet / totalInvested) * 100).toFixed(1) : 0;
+
+      const netEl = document.getElementById('stat-net');
+      netEl.innerText = formatMoney(totalNet);
+      netEl.className = `text-2xl sm:text-3xl font-bold mt-1 ${totalNet >= 0 ? 'text-emerald-400' : 'text-red-400'}`;
+      document.getElementById('stat-roi').innerText = totalRoi + ' %';
+      document.getElementById('stat-turnover').innerText = '$' + Math.round(totalTurnover).toLocaleString('ru-RU');
+
+      const historyContainer = document.getElementById('history-container');
+      const tableBody = document.getElementById('logs-table-body');
+
+      if (items.length === 0) {
+        historyContainer.innerHTML = `<div class="text-sm text-muted-foreground text-center py-8">История пуста.</div>`;
+        tableBody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-muted-foreground">Нет данных</td></tr>`;
+        return;
+      }
+
+      historyContainer.innerHTML = '';
+      tableBody.innerHTML = '';
+
+      [...items].reverse().forEach(item => {
+        const card = document.createElement('div');
+        card.className = "flex items-center justify-between p-3 rounded-lg border border-border bg-background/50 hover:bg-background transition-colors";
+        card.innerHTML = `<div><div class="font-medium text-sm">${item.name}</div><div class="text-xs text-muted-foreground">${item.type === 'trade' ? `Продажа: $${item.sell.toLocaleString('ru-RU')}` : 'Расход/Доход'}</div></div><div class="flex items-center gap-3"><span class="text-sm font-bold ${item.profit >= 0 ? 'text-emerald-400' : 'text-red-400'}">${formatMoney(item.profit)}</span><button onclick="deleteItem(${item.id})" class="text-muted-foreground hover:text-destructive cursor-pointer">✕</button></div>`;
+        historyContainer.appendChild(card);
+
+        const row = document.createElement('tr');
+        row.className = "hover:bg-secondary/20 transition-colors";
+        row.innerHTML = item.type === 'extra' ? 
+          `<td class="p-4 font-medium italic text-muted-foreground">${item.name}</td><td class="p-4">-</td><td class="p-4">-</td><td class="p-4">-</td><td class="p-4 font-bold ${item.profit >= 0 ? 'text-emerald-400' : 'text-red-400'}">${formatMoney(item.profit)}</td><td class="p-4">-</td><td class="p-4 text-right"><button onclick="deleteItem(${item.id})" class="text-muted-foreground hover:text-destructive cursor-pointer">Удалить</button></td>` :
+          `<td class="p-4 font-medium">${item.name}</td><td class="p-4">$${item.buy.toLocaleString('ru-RU')}</td><td class="p-4">$${item.sell.toLocaleString('ru-RU')}</td><td class="p-4 text-muted-foreground">-$${Math.round(item.fee).toLocaleString('ru-RU')}</td><td class="p-4 font-bold ${item.profit >= 0 ? 'text-emerald-400' : 'text-red-400'}">${formatMoney(item.profit)}</td><td class="p-4 text-amber-400 font-medium">${item.roi.toFixed(1)}%</td><td class="p-4 text-right"><button onclick="deleteItem(${item.id})" class="text-muted-foreground hover:text-destructive cursor-pointer">Удалить</button></td>`;
+        tableBody.appendChild(row);
+      });
+    }
+
+    // Инициализация при загрузке
+    renderResell();
+    renderBP();
+  </script>
 </body>
 </html>
