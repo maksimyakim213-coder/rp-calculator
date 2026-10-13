@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Калькулятор перекупа GTA 5 RP</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #121214; color: #ffffff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+    .card { background: #1e1e24; border-radius: 16px; padding: 24px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); border: 1px solid #2e2e38; }
+    h2 { text-align: center; margin-bottom: 20px; color: #ff9f43; font-size: 22px; }
+    .input-group { margin-bottom: 16px; }
+    label { display: block; font-size: 13px; color: #a0a0ab; margin-bottom: 6px; }
+    input, select { width: 100%; padding: 12px; background: #2b2b36; border: 1px solid #3f3f4e; border-radius: 8px; color: #fff; font-size: 16px; outline: none; transition: 0.2s; }
+    input:focus, select:focus { border-color: #ff9f43; }
+    .results { background: #252530; padding: 16px; border-radius: 12px; margin-top: 20px; border-left: 4px solid #ff9f43; }
+    .result-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 15px; }
+    .result-row:last-child { margin-bottom: 0; }
+    .profit { color: #10ac84; font-weight: bold; font-size: 18px; }
+    .loss { color: #ee5253; font-weight: bold; font-size: 18px; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Калькулятор Перекупа</h2>
+
+  <div class="input-group">
+    <label>Цена покупки ($):</label>
+    <input type="number" id="buyPrice" placeholder="Например: 1000000" oninput="calculate()">
+  </div>
+
+  <div class="input-group">
+    <label>Желаемая цена продажи ($):</label>
+    <input type="number" id="sellPrice" placeholder="Например: 1200000" oninput="calculate()">
+  </div>
+
+  <div class="input-group">
+    <label>Комиссия площадки / рынка (%):</label>
+    <select id="feePercent" onchange="calculate()">
+      <option value="0">Без комиссии (0%)</option>
+      <option value="1">С рук / Банковский перевод (1%)</option>
+      <option value="3">Торговая площадка / Торги (3%)</option>
+      <option value="5">Аукцион / Рынок (5%)</option>
+    </select>
+  </div>
+
+  <div class="results">
+    <div class="result-row">
+      <span>Комиссия:</span>
+      <span id="feeValue">$0</span>
+    </div>
+    <div class="result-row">
+      <span>Чистый доход после комиссии:</span>
+      <span id="netSellValue">$0</span>
+    </div>
+    <hr style="border: 0.5px solid #3f3f4e; margin: 10px 0;">
+    <div class="result-row">
+      <span>Чистая прибыль:</span>
+      <span id="profitValue" class="profit">$0</span>
+    </div>
+    <div class="result-row">
+      <span>Окупаемость (ROI):</span>
+      <span id="roiValue">0%</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  function calculate() {
+    const buy = parseFloat(document.getElementById('buyPrice').value) || 0;
+    const sell = parseFloat(document.getElementById('sellPrice').value) || 0;
+    const feePct = parseFloat(document.getElementById('feePercent').value) || 0;
+
+    const fee = sell * (feePct / 100);
+    const netSell = sell - fee;
+    const profit = netSell - buy;
+    const roi = buy > 0 ? ((profit / buy) * 100).toFixed(2) : 0;
+
+    document.getElementById('feeValue').innerText = '$' + fee.toLocaleString('ru-RU');
+    document.getElementById('netSellValue').innerText = '$' + netSell.toLocaleString('ru-RU');
+    
+    const profitEl = document.getElementById('profitValue');
+    profitEl.innerText = (profit >= 0 ? '+' : '') + '$' + profit.toLocaleString('ru-RU');
+    profitEl.className = profit >= 0 ? 'profit' : 'loss';
+
+    document.getElementById('roiValue').innerText = roi + '%';
+  }
+</script>
+
+</body>
+</html>
