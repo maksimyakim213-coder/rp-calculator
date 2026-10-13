@@ -1,432 +1,71 @@
 <!DOCTYPE html>
-<html lang="ru" class="dark">
+<html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RP Calculator — GTA 5 RP</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            background: '#09090b',
-            foreground: '#fafafa',
-            card: '#121216',
-            border: '#27272a',
-            muted: '#71717a',
-            'muted-foreground': '#a1a1aa',
-            primary: '#f59e0b',
-            'primary-foreground': '#000000',
-            secondary: '#27272a',
-            'secondary-foreground': '#fafafa',
-            destructive: '#ef4444',
-          }
-        }
-      }
-    }
-  </script>
+    <meta charset="UTF-8">
+    <title>Каталог GTA 5 RP</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #121212; color: #fff; margin: 0; padding: 20px; }
+        h1 { text-align: center; }
+        .search-container { text-align: center; margin-bottom: 20px; }
+        .search-container input { width: 50%; padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #444; background: #1e1e1e; color: #fff; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; max-width: 1200px; margin: 0 auto; }
+        .card { background: #1e1e1e; border-radius: 8px; padding: 15px; text-align: center; border: 1px solid #333; }
+        .card img { width: 100px; height: 100px; object-fit: contain; margin-bottom: 10px; }
+        .card h3 { font-size: 14px; margin: 10px 0; height: 40px; overflow: hidden; }
+        .card .price { color: #4CAF50; font-weight: bold; }
+    </style>
 </head>
-<body class="bg-background text-foreground min-h-screen font-sans antialiased selection:bg-amber-500 selection:text-black">
+<body>
 
-  <div class="max-w-[1400px] mx-auto px-4 py-8">
+    <h1>Каталог вещей GTA 5 RP</h1>
     
-    <!-- Навигация -->
-    <div class="flex gap-2 mb-6 border-b border-border pb-4 overflow-x-auto">
-      <button onclick="switchMainTab('resell')" id="btn-tab-resell" class="px-5 py-2.5 rounded-lg text-sm font-semibold bg-secondary text-secondary-foreground hover:bg-secondary/85 transition-all cursor-pointer whitespace-nowrap">💰 Перекуп</button>
-      <button onclick="switchMainTab('catalog')" id="btn-tab-catalog" class="px-5 py-2.5 rounded-lg text-sm font-semibold bg-primary text-primary-foreground transition-all cursor-pointer whitespace-nowrap">📦 Каталог Wiki</button>
-      <button onclick="switchMainTab('bp')" id="btn-tab-bp" class="px-5 py-2.5 rounded-lg text-sm font-semibold bg-secondary text-secondary-foreground hover:bg-secondary/85 transition-all cursor-pointer whitespace-nowrap">🎮 Фарм БП</button>
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Поиск по названию предмета...">
     </div>
 
-    <!-- ================= ВКЛАДКА 1: ПЕРЕКУП ================= -->
-    <div id="tab-resell" class="space-y-6 hidden">
-      <div class="flex items-center justify-between">
-        <h1 class="text-3xl font-bold tracking-tight">Калькулятор перекупа</h1>
-        <span class="text-xs px-2.5 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-full font-medium">GTA 5 RP</span>
-      </div>
+    <div class="grid" id="catalogGrid"></div>
 
-      <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <div>
-            <span class="text-xs text-muted-foreground uppercase tracking-wider">Чистый доход</span>
-            <div id="stat-net" class="text-2xl sm:text-3xl font-bold mt-1 text-emerald-400">$0</div>
-          </div>
-          <div>
-            <span class="text-xs text-muted-foreground uppercase tracking-wider">Доходность (ROI)</span>
-            <div id="stat-roi" class="text-2xl sm:text-3xl font-bold mt-1 text-amber-400">0 %</div>
-          </div>
-          <div>
-            <span class="text-xs text-muted-foreground uppercase tracking-wider">Оборот</span>
-            <div id="stat-turnover" class="text-2xl sm:text-3xl font-bold mt-1">$0</div>
-          </div>
-        </div>
-      </div>
+    <script>
+        let allItems = [];
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-        <div class="space-y-6">
-          <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
-            <div class="text-sm font-semibold text-muted-foreground mb-3">Добавление предмета</div>
-            <div class="flex flex-wrap gap-3">
-              <button onclick="switchMainTab('catalog')" class="inline-flex cursor-pointer items-center justify-center rounded-lg text-sm font-medium bg-amber-500 text-black hover:bg-amber-400 h-10 px-4 py-2 transition-colors gap-2 font-semibold shadow">📂 Выбрать из каталога Wiki</button>
-              <button onclick="openManualModal()" class="inline-flex cursor-pointer items-center justify-center rounded-lg text-sm font-medium border border-border bg-secondary hover:bg-secondary/80 h-10 px-4 py-2 transition-colors gap-2">✏️ Ввести вручную</button>
-            </div>
-          </div>
-        </div>
+        // Загружаем наш JSON-файл
+        fetch('items.json')
+            .then(response => response.json())
+            .then(data => {
+                // Если данные обернуты в объект с ключом items, берем его, иначе сам массив
+                allItems = Array.isArray(data) ? data : (data.items || []);
+                displayItems(allItems);
+            })
+            .catch(error => console.error('Ошибка загрузки каталога:', error));
 
-        <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
-          <div class="flex items-center justify-between mb-4">
-            <div class="text-sm font-semibold text-muted-foreground">История сделок</div>
-            <button onclick="clearHistory()" class="text-muted-foreground hover:text-destructive h-9 w-9 flex items-center justify-center rounded-lg cursor-pointer transition-colors">🗑</button>
-          </div>
-          <div id="history-container" class="space-y-3 max-h-[450px] overflow-y-auto pr-2">
-            <div class="text-sm text-muted-foreground text-center py-8">История пуста.</div>
-          </div>
-        </div>
-      </div>
+        // Функция отрисовки карточек
+        function displayItems(items) {
+            const grid = document.getElementById('catalogGrid');
+            grid.innerHTML = '';
 
-      <div class="mt-8">
-        <h3 class="text-xl font-bold tracking-tight mb-4">Логи продаж</h3>
-        <div class="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-              <thead>
-                <tr class="border-b border-border bg-secondary/30 text-xs text-muted-foreground uppercase tracking-wider">
-                  <th class="p-4 font-semibold">Предмет</th>
-                  <th class="p-4 font-semibold">Кол-во</th>
-                  <th class="p-4 font-semibold">Покупка</th>
-                  <th class="p-4 font-semibold">Продажа</th>
-                  <th class="p-4 font-semibold">Комиссия (5%)</th>
-                  <th class="p-4 font-semibold">Прибыль</th>
-                  <th class="p-4 text-right font-semibold">Действие</th>
-                </tr>
-              </thead>
-              <tbody id="logs-table-body" class="divide-y divide-border text-sm">
-                <tr><td colspan="7" class="p-6 text-center text-muted-foreground">Нет данных</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card';
 
-    <!-- ================= ВКЛАДКА 2: КАТАЛОГ WIKI ================= -->
-    <div id="tab-catalog" class="space-y-6">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 class="text-3xl font-bold tracking-tight">Каталог недвижимости Wiki</h1>
-          <p class="text-xs text-muted-foreground mt-1">Реальные объекты с GTA 5 RP Wiki (все 1281 дом)</p>
-        </div>
-        <input id="catalog-search" type="text" placeholder="Поиск по номеру (например: 1, 1281)..." oninput="filterCatalog()" class="w-full sm:w-80 rounded-lg border border-border bg-card px-4 py-2 text-sm focus:outline-none focus:border-amber-500">
-      </div>
-      
-      <div class="flex items-center justify-between text-xs text-muted-foreground bg-card/40 p-3 rounded-lg border border-border">
-        <span>Показано: <strong id="catalog-showing-count" class="text-amber-500">0</strong> из <span id="catalog-total-count">0</span> объектов</span>
-        <div class="flex gap-2">
-          <button id="btn-prev-page" onclick="changeCatalogPage(-1)" class="px-3 py-1 rounded border border-border bg-background hover:bg-secondary disabled:opacity-40 cursor-pointer">◄ Назад</button>
-          <span id="catalog-page-label" class="py-1 font-semibold text-white">Стр. 1</span>
-          <button id="btn-next-page" onclick="changeCatalogPage(1)" class="px-3 py-1 rounded border border-border bg-background hover:bg-secondary disabled:opacity-40 cursor-pointer">Вперед ►</button>
-        </div>
-      </div>
+                const imgUrl = item.image_url || '';
+                const name = item.name || 'Без названия';
+                const price = item.attributes && item.attributes.price ? item.attributes.price.toLocaleString() + ' $' : 'Цена не указана';
 
-      <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"></div>
-    </div>
+                card.innerHTML = `
+                    <img src="${imgUrl}" alt="${name}" onerror="this.src='https://via.placeholder.com/100?text=No+Image'">
+                    <h3>${name}</h3>
+                    <div class="price">${price}</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
 
-    <!-- ================= ВКЛАДКА 3: ФАРМ БП ================= -->
-    <div id="tab-bp" class="space-y-6 hidden">
-      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-        <h1 class="text-3xl font-semibold tracking-tight flex items-center gap-2">
-          Bonus Points 
-          <span class="text-xs px-2 py-0.5 bg-amber-500 text-black font-bold rounded-full">New</span>
-        </h1>
-        <div class="flex items-center gap-2 p-2 px-4 bg-gradient-to-r from-amber-500 to-amber-600 text-black rounded-md font-extrabold text-xl shadow-lg">
-          <span id="bp-total-score">0</span> BP
-        </div>
-      </div>
-
-      <div class="rounded-lg border border-border p-4 bg-card/60 backdrop-blur">
-        <div class="flex items-center gap-2 mb-3">
-          <span class="font-semibold text-sm">Множители Bonus Points:</span>
-          <span id="bp-multiplier-badge" class="px-2 py-0.5 text-xs font-bold rounded bg-amber-500 text-black">x1</span>
-        </div>
-        <div class="flex flex-wrap gap-2">
-          <button id="btn-x2" onclick="toggleX2()" class="px-3 py-1.5 rounded-md text-sm font-medium border border-border bg-background hover:bg-secondary cursor-pointer">⚡ Акция x2</button>
-          <button id="btn-vip" onclick="toggleVip()" class="px-3 py-1.5 rounded-md text-sm font-medium border border-border bg-background hover:bg-secondary cursor-pointer">👑 VIP (x2)</button>
-        </div>
-      </div>
-
-      <div class="space-y-4">
-        <h2 class="text-xl font-semibold tracking-tight text-amber-500">Лёгкие задания</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="bp-easy-grid"></div>
-      </div>
-
-      <div class="space-y-4 pt-4">
-        <h2 class="text-xl font-semibold tracking-tight text-amber-500">Средние задания</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="bp-medium-grid"></div>
-      </div>
-
-      <div class="space-y-4 pt-4">
-        <h2 class="text-xl font-semibold tracking-tight text-amber-500">Сложные задания</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="bp-hard-grid"></div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Модалки -->
-  <div id="catalog-item-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-card border border-border rounded-xl max-w-md w-full p-6 shadow-2xl relative">
-      <h3 id="modal-item-title" class="text-lg font-bold mb-1 text-amber-500">Объект</h3>
-      <p class="text-xs text-muted-foreground mb-4">Гос. цена: <span id="modal-item-base-price" class="text-white font-semibold">$0</span></p>
-      <div class="space-y-4">
-        <div><label class="block text-xs text-muted-foreground uppercase font-semibold mb-1">Количество</label><input id="modal-item-qty" type="number" value="1" min="1" class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"></div>
-        <div><label class="block text-xs text-muted-foreground uppercase font-semibold mb-1">Покупка за 1 шт. ($)</label><input id="modal-item-buy" type="number" class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"></div>
-        <div><label class="block text-xs text-muted-foreground uppercase font-semibold mb-1">Продажа за 1 шт. ($)</label><input id="modal-item-sell" type="number" class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"></div>
-      </div>
-      <div class="flex justify-end gap-3 mt-6">
-        <button onclick="closeCatalogItemModal()" class="px-4 py-2 rounded-lg text-sm border border-border cursor-pointer">Отмена</button>
-        <button onclick="confirmCatalogDeal()" class="px-4 py-2 rounded-lg text-sm bg-amber-500 text-black font-semibold cursor-pointer">Добавить</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="manual-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-card border border-border rounded-xl max-w-md w-full p-6 shadow-2xl relative">
-      <h3 class="text-lg font-bold mb-4">Вручную</h3>
-      <div class="space-y-4">
-        <div><label class="block text-xs text-muted-foreground uppercase font-semibold mb-1">Название</label><input id="m-name" type="text" class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"></div>
-        <div><label class="block text-xs text-muted-foreground uppercase font-semibold mb-1">Покупка ($)</label><input id="m-buy" type="number" class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"></div>
-        <div><label class="block text-xs text-muted-foreground uppercase font-semibold mb-1">Продажа ($)</label><input id="m-sell" type="number" class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"></div>
-      </div>
-      <div class="flex justify-end gap-3 mt-6">
-        <button onclick="closeManualModal()" class="px-4 py-2 rounded-lg text-sm border border-border cursor-pointer">Отмена</button>
-        <button onclick="saveManualItem()" class="px-4 py-2 rounded-lg text-sm bg-amber-500 text-black font-semibold cursor-pointer">Добавить</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // Генерация полной базы данных на 1281 дом
-    const wikiCatalog = [];
-    for (let i = 1; i <= 1281; i++) {
-      let price = 95000;
-      if (i > 10 && i <= 300) price = 250000;
-      else if (i > 300 && i <= 700) price = 450000;
-      else if (i > 700 && i <= 1000) price = 950000;
-      else if (i > 1000) price = 1500000;
-
-      wikiCatalog.push({
-        id: i,
-        name: `Дом #${i}`,
-        price: price,
-        img: `https://wiki.gta5rp.com/_next/image?url=https%3A%2F%2Ffiles3.gta5rp.com%2FHouses%2Fhouse_${i}_0.0_0.0_0.0.webp&w=3840&q=75`
-      });
-    }
-
-    let filteredCatalogList = [...wikiCatalog];
-    let catalogCurrentPage = 1;
-    const itemsPerPage = 32;
-    let activeWikiItem = null;
-
-    document.getElementById('catalog-total-count').innerText = wikiCatalog.length;
-
-    function switchMainTab(tab) {
-      document.getElementById('tab-resell').classList.toggle('hidden', tab !== 'resell');
-      document.getElementById('tab-catalog').classList.toggle('hidden', tab !== 'catalog');
-      document.getElementById('tab-bp').classList.toggle('hidden', tab !== 'bp');
-
-      document.getElementById('btn-tab-resell').className = tab === 'resell' ? 'px-5 py-2.5 rounded-lg text-sm font-semibold bg-primary text-black transition-all cursor-pointer whitespace-nowrap' : 'px-5 py-2.5 rounded-lg text-sm font-semibold bg-secondary text-secondary-foreground hover:bg-secondary/85 transition-all cursor-pointer whitespace-nowrap';
-      document.getElementById('btn-tab-catalog').className = tab === 'catalog' ? 'px-5 py-2.5 rounded-lg text-sm font-semibold bg-primary text-black transition-all cursor-pointer whitespace-nowrap' : 'px-5 py-2.5 rounded-lg text-sm font-semibold bg-secondary text-secondary-foreground hover:bg-secondary/85 transition-all cursor-pointer whitespace-nowrap';
-      document.getElementById('btn-tab-bp').className = tab === 'bp' ? 'px-5 py-2.5 rounded-lg text-sm font-semibold bg-primary text-black transition-all cursor-pointer whitespace-nowrap' : 'px-5 py-2.5 rounded-lg text-sm font-semibold bg-secondary text-secondary-foreground hover:bg-secondary/85 transition-all cursor-pointer whitespace-nowrap';
-    }
-
-    function renderCatalog() {
-      const grid = document.getElementById('catalog-grid');
-      grid.innerHTML = '';
-
-      const totalPages = Math.ceil(filteredCatalogList.length / itemsPerPage) || 1;
-      if (catalogCurrentPage > totalPages) catalogCurrentPage = totalPages;
-      if (catalogCurrentPage < 1) catalogCurrentPage = 1;
-
-      const start = (catalogCurrentPage - 1) * itemsPerPage;
-      const end = start + itemsPerPage;
-      const pageItems = filteredCatalogList.slice(start, end);
-
-      document.getElementById('catalog-showing-count').innerText = pageItems.length;
-      document.getElementById('catalog-page-label').innerText = `Стр. ${catalogCurrentPage} из ${totalPages}`;
-      document.getElementById('btn-prev-page').disabled = catalogCurrentPage === 1;
-      document.getElementById('btn-next-page').disabled = catalogCurrentPage === totalPages;
-
-      if (pageItems.length === 0) {
-        grid.innerHTML = `<div class="col-span-full text-center py-12 text-muted-foreground">Объекты не найдены</div>`;
-        return;
-      }
-
-      pageItems.forEach(item => {
-        const card = document.createElement('div');
-        card.className = "bg-card border border-border rounded-xl overflow-hidden hover:border-amber-500 transition-all cursor-pointer flex flex-col group shadow-sm";
-        card.onclick = () => {
-          activeWikiItem = item;
-          document.getElementById('modal-item-title').innerText = item.name;
-          document.getElementById('modal-item-base-price').innerText = '$' + item.price.toLocaleString('ru-RU');
-          document.getElementById('modal-item-qty').value = 1;
-          document.getElementById('modal-item-buy').value = item.price;
-          document.getElementById('modal-item-sell').value = Math.round(item.price * 1.25);
-          document.getElementById('catalog-item-modal').classList.remove('hidden');
-        };
-        card.innerHTML = `
-          <div class="relative h-36 overflow-hidden bg-background">
-            <img src="${item.img}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=500&q=80';"/>
-          </div>
-          <div class="p-4 flex flex-col flex-1">
-            <div class="font-bold text-sm text-white">${item.name}</div>
-            <div class="text-xs text-emerald-400 font-semibold mt-1">Гос. цена: $${item.price.toLocaleString('ru-RU')}</div>
-            <div class="mt-auto pt-3"><button class="w-full py-1.5 rounded bg-primary/20 text-primary text-xs font-semibold">Выбрать</button></div>
-          </div>
-        `;
-        grid.appendChild(card);
-      });
-    }
-
-    function changeCatalogPage(delta) {
-      catalogCurrentPage += delta;
-      renderCatalog();
-    }
-
-    function filterCatalog() {
-      const q = document.getElementById('catalog-search').value.toLowerCase().trim();
-      filteredCatalogList = wikiCatalog.filter(i => i.name.toLowerCase().includes(q));
-      catalogCurrentPage = 1;
-      renderCatalog();
-    }
-
-    function closeCatalogItemModal() { document.getElementById('catalog-item-modal').classList.add('hidden'); }
-    function confirmCatalogDeal() {
-      const qty = parseInt(document.getElementById('modal-item-qty').value) || 1;
-      const buy1 = parseFloat(document.getElementById('modal-item-buy').value) || 0;
-      const sell1 = parseFloat(document.getElementById('modal-item-sell').value) || 0;
-      const buy = buy1 * qty, sell = sell1 * qty, fee = sell * 0.05, profit = (sell - fee) - buy, roi = buy > 0 ? (profit/buy)*100 : 0;
-      items.push({ id: Date.now(), name: `${activeWikiItem.name} (${qty} шт.)`, qty, buy, sell, fee, profit, roi });
-      closeCatalogItemModal();
-      switchMainTab('resell');
-      saveAndRender();
-    }
-
-    let items = JSON.parse(localStorage.getItem('rp_calc_items')) || [];
-    function saveAndRender() { localStorage.setItem('rp_calc_items', JSON.stringify(items)); renderResell(); }
-    function openManualModal() { document.getElementById('manual-modal').classList.remove('hidden'); }
-    function closeManualModal() { document.getElementById('manual-modal').classList.add('hidden'); }
-    function saveManualItem() {
-      const name = document.getElementById('m-name').value.trim() || 'Предмет';
-      const buy = parseFloat(document.getElementById('m-buy').value) || 0;
-      const sell = parseFloat(document.getElementById('m-sell').value) || 0;
-      const fee = sell * 0.05, profit = (sell - fee) - buy, roi = buy > 0 ? (profit/buy)*100 : 0;
-      items.push({ id: Date.now(), name, qty: 1, buy, sell, fee, profit, roi });
-      closeManualModal();
-      saveAndRender();
-    }
-    function deleteItem(id) { items = items.filter(i => i.id !== id); saveAndRender(); }
-    function clearHistory() { if(confirm('Очистить?')) { items = []; saveAndRender(); } }
-    function formatMoney(num) { return (num >= 0 ? '+' : '') + '$' + Math.round(num).toLocaleString('ru-RU'); }
-
-    function renderResell() {
-      let net = 0, turn = 0, inv = 0;
-      items.forEach(i => { net += i.profit; turn += i.sell; inv += i.buy; });
-      const roi = inv > 0 ? ((net/inv)*100).toFixed(1) : 0;
-      document.getElementById('stat-net').innerText = formatMoney(net);
-      document.getElementById('stat-roi').innerText = roi + ' %';
-      document.getElementById('stat-turnover').innerText = '$' + Math.round(turn).toLocaleString('ru-RU');
-
-      const historyContainer = document.getElementById('history-container');
-      const tableBody = document.getElementById('logs-table-body');
-      if (items.length === 0) {
-        historyContainer.innerHTML = `<div class="text-sm text-muted-foreground text-center py-8">Пусто.</div>`;
-        tableBody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-muted-foreground">Нет данных</td></tr>`;
-        return;
-      }
-      historyContainer.innerHTML = ''; tableBody.innerHTML = '';
-      [...items].reverse().forEach(item => {
-        const card = document.createElement('div');
-        card.className = "flex items-center justify-between p-3 rounded-lg border border-border bg-background/50";
-        card.innerHTML = `<div><div class="font-medium text-sm">${item.name}</div><div class="text-xs text-muted-foreground">Продажа: $${item.sell.toLocaleString('ru-RU')}</div></div><div class="flex items-center gap-3"><span class="text-sm font-bold ${item.profit >= 0 ? 'text-emerald-400' : 'text-red-400'}">${formatMoney(item.profit)}</span><button onclick="deleteItem(${item.id})" class="text-muted-foreground hover:text-destructive cursor-pointer">✕</button></div>`;
-        historyContainer.appendChild(card);
-
-        const row = document.createElement('tr');
-        row.className = "hover:bg-secondary/20 transition-colors";
-        row.innerHTML = `<td class="p-4 font-medium">${item.name}</td><td class="p-4">${item.qty} шт.</td><td class="p-4">$${item.buy.toLocaleString('ru-RU')}</td><td class="p-4">$${item.sell.toLocaleString('ru-RU')}</td><td class="p-4 text-muted-foreground">-$${Math.round(item.fee).toLocaleString('ru-RU')}</td><td class="p-4 font-bold ${item.profit >= 0 ? 'text-emerald-400' : 'text-red-400'}">${formatMoney(item.profit)}</td><td class="p-4 text-right"><button onclick="deleteItem(${item.id})" class="text-muted-foreground hover:text-destructive cursor-pointer">Удалить</button></td>`;
-        tableBody.appendChild(row);
-      });
-    }
-
-    // БП ЛОГИКА
-    let isX2 = JSON.parse(localStorage.getItem('bp_is_x2')) || false;
-    let isVip = JSON.parse(localStorage.getItem('bp_is_vip')) || false;
-    let completedTasks = JSON.parse(localStorage.getItem('bp_completed')) || {};
-
-    const easyTasks = [
-      { id: 'e1', title: 'Купить лотерейный билет', reward: 1 },
-      { id: 'e2', title: 'Посетить любой сайт в браузере', reward: 1 },
-      { id: 'e3', title: 'Поставить лайк любой анкете в Match', reward: 1 },
-      { id: 'e4', title: 'Зайти в любой канал в Brawl', reward: 1 },
-      { id: 'e5', title: 'Добавить 5 видео в кинотеатр', reward: 1 },
-      { id: 'e6', title: 'Сделать платеж по лизингу', reward: 1 }
-    ];
-
-    const mediumTasks = [
-      { id: 'm1', title: '25 действий на стройке', reward: 2 },
-      { id: 'm2', title: '25 действий в порту', reward: 2 },
-      { id: 'm3', title: '25 действий в шахте', reward: 2 },
-      { id: 'm4', title: '2 круга на любом маршруте автобусника', reward: 2 },
-      { id: 'm5', title: 'Выполнить 2 квеста любых клубов', reward: 4 },
-      { id: 'm6', title: 'Проехать 1 станцию на метро', reward: 2 },
-      { id: 'm7', title: 'Поймать 20 рыб', reward: 4 },
-      { id: 'm8', title: 'Кинуть мяч питомцу 15 раз', reward: 2 }
-    ];
-
-    const hardTasks = [
-      { id: 'h1', title: 'Пройти дневной контракт семьи', reward: 6 },
-      { id: 'h2', title: 'Выиграть гонку или ивент', reward: 8 }
-    ];
-
-    function toggleX2() { isX2 = !isX2; localStorage.setItem('bp_is_x2', isX2); renderBP(); }
-    function toggleVip() { isVip = !isVip; localStorage.setItem('bp_is_vip', isVip); renderBP(); }
-    function toggleTask(id) { completedTasks[id] = !completedTasks[id]; localStorage.setItem('bp_completed', JSON.stringify(completedTasks)); renderBP(); }
-    function getCurrentMultiplier() { let m = 1; if(isX2) m *= 2; if(isVip) m *= 2; return m; }
-
-    function renderTasksGroup(tasks, containerId) {
-      const grid = document.getElementById(containerId);
-      grid.innerHTML = '';
-      const mult = getCurrentMultiplier();
-      let sum = 0;
-      tasks.forEach(task => {
-        const isDone = completedTasks[task.id];
-        const finalReward = task.reward * mult;
-        if(isDone) sum += finalReward;
-        const card = document.createElement('button');
-        card.type = 'button';
-        card.onclick = () => toggleTask(task.id);
-        card.className = `relative rounded-xl flex flex-col border p-5 text-left transition-all duration-200 cursor-pointer ${isDone ? 'border-amber-500 bg-amber-500/10' : 'border-border bg-card hover:bg-secondary/40'}`;
-        card.innerHTML = `<h3 class="text-sm font-semibold">${task.title}</h3><span class="text-xl font-bold mt-2 text-amber-400">${finalReward} BP</span><span class="text-xs text-muted-foreground mt-3 mt-auto">${isDone ? '✓ Выполнено' : 'Нажмите чтобы отметить'}</span>`;
-        grid.appendChild(card);
-      });
-      return sum;
-    }
-
-    function renderBP() {
-      document.getElementById('btn-x2').className = isX2 ? 'px-3 py-1.5 rounded-md text-sm font-bold border border-amber-500 bg-amber-500 text-black cursor-pointer' : 'px-3 py-1.5 rounded-md text-sm font-medium border border-border bg-background hover:bg-secondary cursor-pointer';
-      document.getElementById('btn-vip').className = isVip ? 'px-3 py-1.5 rounded-md text-sm font-bold border border-amber-500 bg-amber-500 text-black cursor-pointer' : 'px-3 py-1.5 rounded-md text-sm font-medium border border-border bg-background hover:bg-secondary cursor-pointer';
-      const mult = getCurrentMultiplier();
-      document.getElementById('bp-multiplier-badge').innerText = `x${mult}`;
-      const s1 = renderTasksGroup(easyTasks, 'bp-easy-grid');
-      const s2 = renderTasksGroup(mediumTasks, 'bp-medium-grid');
-      const s3 = renderTasksGroup(hardTasks, 'bp-hard-grid');
-      document.getElementById('bp-total-score').innerText = s1 + s2 + s3;
-    }
-
-    // Инициализация при старте
-    renderCatalog();
-    renderResell();
-    renderBP();
-  </script>
+        // Поиск по сайту
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const searchText = e.target.value.toLowerCase();
+            const filtered = allItems.filter(item => item.name.toLowerCase().includes(searchText));
+            displayItems(filtered);
+        });
+    </script>
 </body>
 </html>
