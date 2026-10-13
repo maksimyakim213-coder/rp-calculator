@@ -5,186 +5,406 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RP Calculator — GTA 5 RP</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-    body { background-color: #0f0f12; color: #e1e1e6; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-    .app-container { background: #18181c; border-radius: 16px; width: 100%; max-width: 520px; border: 1px solid #282830; box-shadow: 0 20px 40px rgba(0,0,0,0.6); overflow: hidden; }
+    :root {
+      --bg-color: #0b0b0e;
+      --card-bg: rgba(22, 22, 30, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent: #f39c12;
+      --accent-gradient: linear-gradient(135deg, #f39c12, #e67e22);
+      --text-main: #f5f6fa;
+      --text-muted: #a4b0be;
+      --success: #2ed573;
+      --danger: #ff4757;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
     
-    /* Навигация / Вкладки */
-    .tabs { display: flex; background: #121215; border-bottom: 1px solid #282830; }
-    .tab-btn { flex: 1; padding: 16px; background: none; border: none; color: #8a8a9e; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; text-align: center; }
-    .tab-btn:hover { color: #fff; background: rgba(255,255,255,0.02); }
-    .tab-btn.active { color: #ff9f43; border-bottom: 2px solid #ff9f43; background: #18181c; }
+    body {
+      background-color: var(--bg-color);
+      background-image: 
+        radial-gradient(at 10% 20%, rgba(243, 156, 18, 0.08) 0px, transparent 50%),
+        radial-gradient(at 90% 80%, rgba(46, 213, 115, 0.05) 0px, transparent 50%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
 
-    .content { padding: 24px; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
+    .wrapper {
+      width: 100%;
+      max-width: 600px;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+    }
 
-    h2 { font-size: 20px; margin-bottom: 18px; color: #fff; text-align: center; }
-    .input-group { margin-bottom: 16px; }
-    label { display: block; font-size: 13px; color: #a0a0ab; margin-bottom: 6px; }
-    input, select { width: 100%; padding: 12px 14px; background: #222228; border: 1px solid #32323d; border-radius: 10px; color: #fff; font-size: 15px; outline: none; transition: 0.2s; }
-    input:focus, select:focus { border-color: #ff9f43; }
+    /* Навигация по вкладкам */
+    .nav-tabs {
+      display: flex;
+      background: rgba(15, 15, 20, 0.9);
+      border-bottom: 1px solid var(--card-border);
+      overflow-x: auto;
+    }
 
-    /* Блок результатов */
-    .results { background: #101014; padding: 18px; border-radius: 12px; margin-top: 20px; border: 1px solid #252530; }
-    .result-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; color: #b0b0bc; }
-    .result-row:last-child { margin-bottom: 0; }
-    .result-value { font-weight: 600; color: #fff; }
-    .profit { color: #10ac84; font-weight: bold; font-size: 18px; }
-    .loss { color: #ee5253; font-weight: bold; font-size: 18px; }
-    hr { border: 0; height: 1px; background: #282830; margin: 12px 0; }
+    .tab-btn {
+      flex: 1;
+      padding: 16px 12px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      background: rgba(243, 156, 18, 0.05);
+      border-bottom: 2px solid var(--accent);
+    }
+
+    /* Контент */
+    .content-pane {
+      padding: 28px;
+      display: none;
+    }
+
+    .content-pane.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      font-size: 22px;
+      margin-bottom: 20px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .input-box label {
+      display: block;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .input-box input, .input-box select {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(15, 15, 20, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 15px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .input-box input:focus, .input-box select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.15);
+    }
+
+    /* Карточка результатов */
+    .result-card {
+      margin-top: 24px;
+      background: rgba(10, 10, 14, 0.7);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 20px;
+    }
+
+    .res-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .res-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .res-val {
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--card-border);
+      margin: 14px 0;
+    }
+
+    .profit-val {
+      color: var(--success);
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .loss-val {
+      color: var(--danger);
+      font-size: 20px;
+      font-weight: 700;
+    }
   </style>
 </head>
 <body>
 
-<div class="app-container">
-  <!-- Переключатель вкладок -->
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('resell')">💰 Перекуп</button>
-    <button class="tab-btn" onclick="switchTab('bp')">🎮 Фарм БП</button>
+<div class="wrapper">
+  <!-- Вкладки интерфейса -->
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('resell', this)">💰 Перекуп</button>
+    <button class="tab-btn" onclick="switchTab('bp', this)">🎮 Фарм БП</button>
+    <button class="tab-btn" onclick="switchTab('cases', this)">📦 Кейсы</button>
+    <button class="tab-btn" onclick="switchTab('craft', this)">🛠 Крафт</button>
   </div>
 
-  <div class="content">
-    <!-- ВКЛАДКА: ПЕРЕКУП -->
-    <div id="tab-resell" class="tab-content active">
-      <h2>Калькулятор Перекупа</h2>
-
-      <div class="input-group">
-        <label>Цена покупки ($):</label>
-        <input type="number" id="buyPrice" placeholder="Например: 1000000" oninput="calcResell()">
+  <!-- 1. ПЕРЕКУП -->
+  <div id="resell" class="content-pane active">
+    <h2>Калькулятор Перекупа</h2>
+    <div class="form-grid">
+      <div class="input-box">
+        <label>Цена покупки ($)</label>
+        <input type="number" id="r-buy" placeholder="Например: 2 500 000" oninput="calcResell()">
       </div>
-
-      <div class="input-group">
-        <label>Желаемая цена продажи ($):</label>
-        <input type="number" id="sellPrice" placeholder="Например: 1250000" oninput="calcResell()">
+      <div class="input-box">
+        <label>Желаемая цена продажи ($)</label>
+        <input type="number" id="r-sell" placeholder="Например: 3 000 000" oninput="calcResell()">
       </div>
-
-      <div class="input-group">
-        <label>Площадка / Способ продажи:</label>
-        <select id="feePercent" onchange="calcResell()">
+      <div class="input-box">
+        <label>Комиссия площадки</label>
+        <select id="r-fee" onchange="calcResell()">
           <option value="0">С рук / Перевод (0%)</option>
           <option value="1">Банковский перевод (1%)</option>
-          <option value="3">Торговая площадка / Торги (3%)</option>
-          <option value="5">Аукцион / Рынок (5%)</option>
+          <option value="3">Торговая площадка (3%)</option>
+          <option value="5">Рынок / Аукцион (5%)</option>
         </select>
-      </div>
-
-      <div class="results">
-        <div class="result-row">
-          <span>Комиссия:</span>
-          <span id="feeValue" class="result-value">$0</span>
-        </div>
-        <div class="result-row">
-          <span>Чистыми после комиссии:</span>
-          <span id="netSellValue" class="result-value">$0</span>
-        </div>
-        <hr>
-        <div class="result-row">
-          <span>Чистая прибыль:</span>
-          <span id="profitValue" class="profit">$0</span>
-        </div>
-        <div class="result-row">
-          <span>Окупаемость (ROI):</span>
-          <span id="roiValue" class="result-value">0%</span>
-        </div>
       </div>
     </div>
 
-    <!-- ВКЛАДКА: ФАРМ БП -->
-    <div id="tab-bp" class="tab-content">
-      <h2>Калькулятор Battle Pass</h2>
-
-      <div class="input-group">
-        <label>Текущий уровень БП:</label>
-        <input type="number" id="currentLevel" placeholder="Например: 15" oninput="calcBP()">
+    <div class="result-card">
+      <div class="res-row">
+        <span>Комиссия системы:</span>
+        <span id="r-res-fee" class="res-val">$0</span>
       </div>
-
-      <div class="input-group">
-        <label>Желаемый уровень БП:</label>
-        <input type="number" id="targetLevel" placeholder="Например: 100" oninput="calcBP()">
+      <div class="res-row">
+        <span>Чистыми на руки:</span>
+        <span id="r-res-net" class="res-val">$0</span>
       </div>
-
-      <div class="input-group">
-        <label>Текущее количество опыта (EXP):</label>
-        <input type="number" id="currentExp" placeholder="Например: 250" oninput="calcBP()">
+      <div class="divider"></div>
+      <div class="res-row">
+        <span>Чистая прибыль:</span>
+        <span id="r-res-profit" class="profit-val">$0</span>
       </div>
+      <div class="res-row">
+        <span>Окупаемость (ROI):</span>
+        <span id="r-res-roi" class="res-val">0%</span>
+      </div>
+    </div>
+  </div>
 
-      <div class="results">
-        <div class="result-row">
-          <span>Осталось уровней:</span>
-          <span id="levelsLeft" class="result-value">0</span>
-        </div>
-        <div class="result-row">
-          <span>Осталось EXP:</span>
-          <span id="expLeft" class="result-value">0 EXP</span>
-        </div>
-        <hr>
-        <div class="result-row">
-          <span>Дней фарма (при ~1000 EXP/день):</span>
-          <span id="daysLeft" class="result-value" style="color:#ff9f43;">0 дн.</span>
-        </div>
+  <!-- 2. ФАРМ БП -->
+  <div id="bp" class="content-pane">
+    <h2>Калькулятор Battle Pass</h2>
+    <div class="form-grid">
+      <div class="input-box">
+        <label>Текущий уровень БП</label>
+        <input type="number" id="bp-curr" placeholder="Например: 10" oninput="calcBP()">
+      </div>
+      <div class="input-box">
+        <label>Целевой уровень БП</label>
+        <input type="number" id="bp-target" placeholder="Например: 100" oninput="calcBP()">
+      </div>
+      <div class="input-box">
+        <label>Текущий опыт (EXP)</label>
+        <input type="number" id="bp-exp" placeholder="Например: 350" oninput="calcBP()">
+      </div>
+    </div>
+
+    <div class="result-card">
+      <div class="res-row">
+        <span>Осталось уровней:</span>
+        <span id="bp-res-lvl" class="res-val">0</span>
+      </div>
+      <div class="res-row">
+        <span>Всего опыта нужно:</span>
+        <span id="bp-res-exp" class="res-val">0 EXP</span>
+      </div>
+      <div class="divider"></div>
+      <div class="res-row">
+        <span>Дней фарма (~1000 EXP/д):</span>
+        <span id="bp-res-days" class="res-val" style="color: var(--accent); font-weight: 700;">0 дн.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. КЕЙСЫ / КОНТЕЙНЕРЫ -->
+  <div id="cases" class="content-pane">
+    <h2>Калькулятор Контейнеров</h2>
+    <div class="form-grid">
+      <div class="input-box">
+        <label>Стоимость одного кейса ($)</label>
+        <input type="number" id="c-cost" placeholder="Например: 150000" oninput="calcCases()">
+      </div>
+      <div class="input-box">
+        <label>Количество открытий</label>
+        <input type="number" id="c-count" placeholder="Например: 10" value="1" oninput="calcCases()">
+      </div>
+      <div class="input-box">
+        <label>Суммарная ценность выпавшего ($)</label>
+        <input type="number" id="c-return" placeholder="Например: 1800000" oninput="calcCases()">
+      </div>
+    </div>
+
+    <div class="result-card">
+      <div class="res-row">
+        <span>Потрачено всего:</span>
+        <span id="c-res-spent" class="res-val">$0</span>
+      </div>
+      <div class="divider"></div>
+      <div class="res-row">
+        <span>Результат от открытий:</span>
+        <span id="c-res-profit" class="profit-val">$0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. КРАФТ -->
+  <div id="craft" class="content-pane">
+    <h2>Калькулятор Крафта</h2>
+    <div class="form-grid">
+      <div class="input-box">
+        <label>Себестоимость материалов ($)</label>
+        <input type="number" id="cr-mat" placeholder="Например: 500000" oninput="calcCraft()">
+      </div>
+      <div class="input-box">
+        <label>Рыночная цена готового предмета ($)</label>
+        <input type="number" id="cr-price" placeholder="Например: 750000" oninput="calcCraft()">
+      </div>
+    </div>
+
+    <div class="result-card">
+      <div class="res-row">
+        <span>Чистый профит с крафта:</span>
+        <span id="cr-res-profit" class="profit-val">$0</span>
+      </div>
+      <div class="res-row">
+        <span>Маржинальность:</span>
+        <span id="cr-res-margin" class="res-val">0%</span>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-  // Функция переключения вкладок
-  function switchTab(tabName) {
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-
-    if (tabName === 'resell') {
-      document.querySelectorAll('.tab-btn')[0].classList.add('active');
-      document.getElementById('tab-resell').classList.add('active');
-    } else {
-      document.querySelectorAll('.tab-btn')[1].classList.add('active');
-      document.getElementById('tab-bp').classList.add('active');
-    }
+  function switchTab(tabId, btn) {
+    document.querySelectorAll('.content-pane').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    btn.classList.add('active');
   }
 
-  // Расчёт Перекупа
   function calcResell() {
-    const buy = parseFloat(document.getElementById('buyPrice').value) || 0;
-    const sell = parseFloat(document.getElementById('sellPrice').value) || 0;
-    const feePct = parseFloat(document.getElementById('feePercent').value) || 0;
+    const buy = parseFloat(document.getElementById('r-buy').value) || 0;
+    const sell = parseFloat(document.getElementById('r-sell').value) || 0;
+    const feePct = parseFloat(document.getElementById('r-fee').value) || 0;
 
     const fee = sell * (feePct / 100);
-    const netSell = sell - fee;
-    const profit = netSell - buy;
+    const net = sell - fee;
+    const profit = net - buy;
     const roi = buy > 0 ? ((profit / buy) * 100).toFixed(2) : 0;
 
-    document.getElementById('feeValue').innerText = '$' + fee.toLocaleString('ru-RU');
-    document.getElementById('netSellValue').innerText = '$' + netSell.toLocaleString('ru-RU');
+    document.getElementById('r-res-fee').innerText = '$' + fee.toLocaleString('ru-RU');
+    document.getElementById('r-res-net').innerText = '$' + net.toLocaleString('ru-RU');
     
-    const profitEl = document.getElementById('profitValue');
-    profitEl.innerText = (profit >= 0 ? '+' : '') + '$' + profit.toLocaleString('ru-RU');
-    profitEl.className = profit >= 0 ? 'profit' : 'loss';
-
-    document.getElementById('roiValue').innerText = roi + '%';
+    const pEl = document.getElementById('r-res-profit');
+    pEl.innerText = (profit >= 0 ? '+' : '') + '$' + profit.toLocaleString('ru-RU');
+    pEl.className = profit >= 0 ? 'profit-val' : 'loss-val';
+    
+    document.getElementById('r-res-roi').innerText = roi + '%';
   }
 
-  // Расчёт Фарма БП
   function calcBP() {
-    const currentLvl = parseInt(document.getElementById('currentLevel').value) || 0;
-    const targetLvl = parseInt(document.getElementById('targetLevel').value) || 0;
-    const currentExp = parseInt(document.getElementById('currentExp').value) || 0;
+    const curr = parseInt(document.getElementById('bp-curr').value) || 0;
+    const target = parseInt(document.getElementById('bp-target').value) || 0;
+    const exp = parseInt(document.getElementById('bp-exp').value) || 0;
 
-    const expPerLevel = 1000; // Среднее кол-во опыта на уровень
-    
-    if (targetLvl > currentLvl) {
-      const levelsLeft = targetLvl - currentLvl;
-      const totalExpNeeded = (levelsLeft * expPerLevel) - currentExp;
-      const daysNeeded = Math.ceil(Math.max(0, totalExpNeeded) / 1000);
+    if (target > curr) {
+      const lvls = target - curr;
+      const totalExp = (lvls * 1000) - exp;
+      const days = Math.ceil(Math.max(0, totalExp) / 1000);
 
-      document.getElementById('levelsLeft').innerText = levelsLeft;
-      document.getElementById('expLeft').innerText = Math.max(0, totalExpNeeded).toLocaleString('ru-RU') + ' EXP';
-      document.getElementById('daysLeft').innerText = daysNeeded + ' дн.';
+      document.getElementById('bp-res-lvl').innerText = lvls;
+      document.getElementById('bp-res-exp').innerText = Math.max(0, totalExp).toLocaleString('ru-RU') + ' EXP';
+      document.getElementById('bp-res-days').innerText = days + ' дн.';
     } else {
-      document.getElementById('levelsLeft').innerText = '0';
-      document.getElementById('expLeft').innerText = '0 EXP';
-      document.getElementById('daysLeft').innerText = '0 дн.';
+      document.getElementById('bp-res-lvl').innerText = '0';
+      document.getElementById('bp-res-exp').innerText = '0 EXP';
+      document.getElementById('bp-res-days').innerText = '0 дн.';
     }
+  }
+
+  function calcCases() {
+    const cost = parseFloat(document.getElementById('c-cost').value) || 0;
+    const count = parseInt(document.getElementById('c-count').value) || 0;
+    const ret = parseFloat(document.getElementById('c-return').value) || 0;
+
+    const spent = cost * count;
+    const profit = ret - spent;
+
+    document.getElementById('c-res-spent').innerText = '$' + spent.toLocaleString('ru-RU');
+    
+    const pEl = document.getElementById('c-res-profit');
+    pEl.innerText = (profit >= 0 ? '+' : '') + '$' + profit.toLocaleString('ru-RU');
+    pEl.className = profit >= 0 ? 'profit-val' : 'loss-val';
+  }
+
+  function calcCraft() {
+    const mat = parseFloat(document.getElementById('cr-mat').value) || 0;
+    const price = parseFloat(document.getElementById('cr-price').value) || 0;
+
+    const profit = price - mat;
+    const margin = mat > 0 ? ((profit / mat) * 100).toFixed(2) : 0;
+
+    const pEl = document.getElementById('cr-res-profit');
+    pEl.innerText = (profit >= 0 ? '+' : '') + '$' + profit.toLocaleString('ru-RU');
+    pEl.className = profit >= 0 ? 'profit-val' : 'loss-val';
+
+    document.getElementById('cr-res-margin').innerText = margin + '%';
   }
 </script>
 
