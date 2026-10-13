@@ -3,71 +3,148 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Калькулятор перекупа GTA 5 RP</title>
+  <title>RP Calculator — GTA 5 RP</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background-color: #121214; color: #ffffff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-    .card { background: #1e1e24; border-radius: 16px; padding: 24px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); border: 1px solid #2e2e38; }
-    h2 { text-align: center; margin-bottom: 20px; color: #ff9f43; font-size: 22px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body { background-color: #0f0f12; color: #e1e1e6; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+    .app-container { background: #18181c; border-radius: 16px; width: 100%; max-width: 520px; border: 1px solid #282830; box-shadow: 0 20px 40px rgba(0,0,0,0.6); overflow: hidden; }
+    
+    /* Навигация / Вкладки */
+    .tabs { display: flex; background: #121215; border-bottom: 1px solid #282830; }
+    .tab-btn { flex: 1; padding: 16px; background: none; border: none; color: #8a8a9e; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; text-align: center; }
+    .tab-btn:hover { color: #fff; background: rgba(255,255,255,0.02); }
+    .tab-btn.active { color: #ff9f43; border-bottom: 2px solid #ff9f43; background: #18181c; }
+
+    .content { padding: 24px; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    h2 { font-size: 20px; margin-bottom: 18px; color: #fff; text-align: center; }
     .input-group { margin-bottom: 16px; }
     label { display: block; font-size: 13px; color: #a0a0ab; margin-bottom: 6px; }
-    input, select { width: 100%; padding: 12px; background: #2b2b36; border: 1px solid #3f3f4e; border-radius: 8px; color: #fff; font-size: 16px; outline: none; transition: 0.2s; }
+    input, select { width: 100%; padding: 12px 14px; background: #222228; border: 1px solid #32323d; border-radius: 10px; color: #fff; font-size: 15px; outline: none; transition: 0.2s; }
     input:focus, select:focus { border-color: #ff9f43; }
-    .results { background: #252530; padding: 16px; border-radius: 12px; margin-top: 20px; border-left: 4px solid #ff9f43; }
-    .result-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 15px; }
+
+    /* Блок результатов */
+    .results { background: #101014; padding: 18px; border-radius: 12px; margin-top: 20px; border: 1px solid #252530; }
+    .result-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; color: #b0b0bc; }
     .result-row:last-child { margin-bottom: 0; }
+    .result-value { font-weight: 600; color: #fff; }
     .profit { color: #10ac84; font-weight: bold; font-size: 18px; }
     .loss { color: #ee5253; font-weight: bold; font-size: 18px; }
+    hr { border: 0; height: 1px; background: #282830; margin: 12px 0; }
   </style>
 </head>
 <body>
 
-<div class="card">
-  <h2>Калькулятор Перекупа</h2>
-
-  <div class="input-group">
-    <label>Цена покупки ($):</label>
-    <input type="number" id="buyPrice" placeholder="Например: 1000000" oninput="calculate()">
+<div class="app-container">
+  <!-- Переключатель вкладок -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('resell')">💰 Перекуп</button>
+    <button class="tab-btn" onclick="switchTab('bp')">🎮 Фарм БП</button>
   </div>
 
-  <div class="input-group">
-    <label>Желаемая цена продажи ($):</label>
-    <input type="number" id="sellPrice" placeholder="Например: 1200000" oninput="calculate()">
-  </div>
+  <div class="content">
+    <!-- ВКЛАДКА: ПЕРЕКУП -->
+    <div id="tab-resell" class="tab-content active">
+      <h2>Калькулятор Перекупа</h2>
 
-  <div class="input-group">
-    <label>Комиссия площадки / рынка (%):</label>
-    <select id="feePercent" onchange="calculate()">
-      <option value="0">Без комиссии (0%)</option>
-      <option value="1">С рук / Банковский перевод (1%)</option>
-      <option value="3">Торговая площадка / Торги (3%)</option>
-      <option value="5">Аукцион / Рынок (5%)</option>
-    </select>
-  </div>
+      <div class="input-group">
+        <label>Цена покупки ($):</label>
+        <input type="number" id="buyPrice" placeholder="Например: 1000000" oninput="calcResell()">
+      </div>
 
-  <div class="results">
-    <div class="result-row">
-      <span>Комиссия:</span>
-      <span id="feeValue">$0</span>
+      <div class="input-group">
+        <label>Желаемая цена продажи ($):</label>
+        <input type="number" id="sellPrice" placeholder="Например: 1250000" oninput="calcResell()">
+      </div>
+
+      <div class="input-group">
+        <label>Площадка / Способ продажи:</label>
+        <select id="feePercent" onchange="calcResell()">
+          <option value="0">С рук / Перевод (0%)</option>
+          <option value="1">Банковский перевод (1%)</option>
+          <option value="3">Торговая площадка / Торги (3%)</option>
+          <option value="5">Аукцион / Рынок (5%)</option>
+        </select>
+      </div>
+
+      <div class="results">
+        <div class="result-row">
+          <span>Комиссия:</span>
+          <span id="feeValue" class="result-value">$0</span>
+        </div>
+        <div class="result-row">
+          <span>Чистыми после комиссии:</span>
+          <span id="netSellValue" class="result-value">$0</span>
+        </div>
+        <hr>
+        <div class="result-row">
+          <span>Чистая прибыль:</span>
+          <span id="profitValue" class="profit">$0</span>
+        </div>
+        <div class="result-row">
+          <span>Окупаемость (ROI):</span>
+          <span id="roiValue" class="result-value">0%</span>
+        </div>
+      </div>
     </div>
-    <div class="result-row">
-      <span>Чистый доход после комиссии:</span>
-      <span id="netSellValue">$0</span>
-    </div>
-    <hr style="border: 0.5px solid #3f3f4e; margin: 10px 0;">
-    <div class="result-row">
-      <span>Чистая прибыль:</span>
-      <span id="profitValue" class="profit">$0</span>
-    </div>
-    <div class="result-row">
-      <span>Окупаемость (ROI):</span>
-      <span id="roiValue">0%</span>
+
+    <!-- ВКЛАДКА: ФАРМ БП -->
+    <div id="tab-bp" class="tab-content">
+      <h2>Калькулятор Battle Pass</h2>
+
+      <div class="input-group">
+        <label>Текущий уровень БП:</label>
+        <input type="number" id="currentLevel" placeholder="Например: 15" oninput="calcBP()">
+      </div>
+
+      <div class="input-group">
+        <label>Желаемый уровень БП:</label>
+        <input type="number" id="targetLevel" placeholder="Например: 100" oninput="calcBP()">
+      </div>
+
+      <div class="input-group">
+        <label>Текущее количество опыта (EXP):</label>
+        <input type="number" id="currentExp" placeholder="Например: 250" oninput="calcBP()">
+      </div>
+
+      <div class="results">
+        <div class="result-row">
+          <span>Осталось уровней:</span>
+          <span id="levelsLeft" class="result-value">0</span>
+        </div>
+        <div class="result-row">
+          <span>Осталось EXP:</span>
+          <span id="expLeft" class="result-value">0 EXP</span>
+        </div>
+        <hr>
+        <div class="result-row">
+          <span>Дней фарма (при ~1000 EXP/день):</span>
+          <span id="daysLeft" class="result-value" style="color:#ff9f43;">0 дн.</span>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-  function calculate() {
+  // Функция переключения вкладок
+  function switchTab(tabName) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+    if (tabName === 'resell') {
+      document.querySelectorAll('.tab-btn')[0].classList.add('active');
+      document.getElementById('tab-resell').classList.add('active');
+    } else {
+      document.querySelectorAll('.tab-btn')[1].classList.add('active');
+      document.getElementById('tab-bp').classList.add('active');
+    }
+  }
+
+  // Расчёт Перекупа
+  function calcResell() {
     const buy = parseFloat(document.getElementById('buyPrice').value) || 0;
     const sell = parseFloat(document.getElementById('sellPrice').value) || 0;
     const feePct = parseFloat(document.getElementById('feePercent').value) || 0;
@@ -85,6 +162,29 @@
     profitEl.className = profit >= 0 ? 'profit' : 'loss';
 
     document.getElementById('roiValue').innerText = roi + '%';
+  }
+
+  // Расчёт Фарма БП
+  function calcBP() {
+    const currentLvl = parseInt(document.getElementById('currentLevel').value) || 0;
+    const targetLvl = parseInt(document.getElementById('targetLevel').value) || 0;
+    const currentExp = parseInt(document.getElementById('currentExp').value) || 0;
+
+    const expPerLevel = 1000; // Среднее кол-во опыта на уровень
+    
+    if (targetLvl > currentLvl) {
+      const levelsLeft = targetLvl - currentLvl;
+      const totalExpNeeded = (levelsLeft * expPerLevel) - currentExp;
+      const daysNeeded = Math.ceil(Math.max(0, totalExpNeeded) / 1000);
+
+      document.getElementById('levelsLeft').innerText = levelsLeft;
+      document.getElementById('expLeft').innerText = Math.max(0, totalExpNeeded).toLocaleString('ru-RU') + ' EXP';
+      document.getElementById('daysLeft').innerText = daysNeeded + ' дн.';
+    } else {
+      document.getElementById('levelsLeft').innerText = '0';
+      document.getElementById('expLeft').innerText = '0 EXP';
+      document.getElementById('daysLeft').innerText = '0 дн.';
+    }
   }
 </script>
 
