@@ -110,7 +110,7 @@
       </div>
     </div>
 
-    <!-- ================= ВКЛАДКА 2: КАТАЛОГ WIKI ================= -->
+    <!-- ================= ВКЛАДКА 2: КАТАЛОГ ================= -->
     <div id="tab-catalog" class="space-y-6 hidden">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -196,20 +196,19 @@
   </div>
 
   <script>
-    // Реальная база домов с Вики GTA 5 RP
     const wikiCatalog = [
-      { id: 1, name: "Дом #1", price: 95000, img: "https://wiki.gta5rp.com/_next/image?url=https%3A%2F%2Ffiles3.gta5rp.com%2FHouses%2Fhouse_1_472.14_-1775.22_28.07.webp&w=3840&q=75" },
-      { id: 2, name: "Дом #2", price: 95000, img: "https://wiki.gta5rp.com/_next/image?url=https%3A%2F%2Ffiles3.gta5rp.com%2FHouses%2Fhouse_2_474.79_-1757.74_28.09.webp&w=3840&q=75" },
-      { id: 3, name: "Дом #3", price: 95000, img: "https://wiki.gta5rp.com/_next/image?url=https%3A%2F%2Ffiles3.gta5rp.com%2FHouses%2Fhouse_3_489.54_-1714.08_28.71.webp&w=3840&q=75" },
-      { id: 4, name: "Дом #4", price: 95000, img: "https://wiki.gta5rp.com/_next/image?url=https%3A%2F%2Ffiles3.gta5rp.com%2FHouses%2Fhouse_4_500.62_-1697.40_28.79.webp&w=3840&q=75" },
-      { id: 5, name: "Дом #5", price: 95000, img: "https://wiki.gta5rp.com/_next/image?url=https%3A%2F%2Ffiles3.gta5rp.com%2FHouses%2Fhouse_5_514.37_-1780.81_27.91.webp&w=3840&q=75" },
-      { id: 6, name: "Дом #6", price: 95000, img: "https://wiki.gta5rp.com/_next/image?url=https%3A%2F%2Ffiles3.gta5rp.com%2FHouses%2Fhouse_6_512.50_-1790.78_27.92.webp&w=3840&q=75" },
-      { id: 7, name: "Дом #7", price: 95000, img: "https://wiki.gta5rp.com/_next/image?url=https%3A%2F%2Ffiles3.gta5rp.com%2FHouses%2Fhouse_7_500.54_-1813.01_27.89.webp&w=3840&q=75" },
-      { id: 8, name: "Дом #8", price: 95000, img: "https://wiki.gta5rp.com/_next/image?url=https%3A%2F%2Ffiles3.gta5rp.com%2FHouses%2Fhouse_8_440.60_-1829.71_27.36.webp&w=3840&q=75" },
-      { id: 9, name: "Дом #9", price: 95000, img: "https://wiki.gta5rp.com/_next/image?url=https%3A%2F%2Ffiles3.gta5rp.com%2FHouses%2Fhouse_9_412.49_-1856.39_26.32.webp&w=3840&q=75" },
-      { id: 10, name: "Дом #10", price: 95000, img: "https://wiki.gta5rp.com/_next/image?url=https%3A%2F%2Ffiles3.gta5rp.com%2FHouses%2Fhouse_10_399.60_-1864.79_25.72.webp&w=3840&q=75" },
-      { id: 11, name: "Дом #11", price: 450000, img: "https://wiki.gta5rp.com/_next/image?url=https%3A%2F%2Ffiles3.gta5rp.com%2FHouses%2Fhouse_11_346.39_440.55_146.80.webp&w=3840&q=75" },
-      { id: 12, name: "Дом #12", price: 95000, img: "https://wiki.gta5rp.com/_next/image?url=https%3A%2F%2Ffiles3.gta5rp.com%2FHouses%2Fhouse_12_384.92_-1881.71_25.03.webp&w=3840&q=75" }
+      { id: 1, name: "Дом #1", price: 95000 },
+      { id: 2, name: "Дом #2", price: 95000 },
+      { id: 3, name: "Дом #3", price: 95000 },
+      { id: 4, name: "Дом #4", price: 95000 },
+      { id: 5, name: "Дом #5", price: 95000 },
+      { id: 6, name: "Дом #6", price: 95000 },
+      { id: 7, name: "Дом #7", price: 95000 },
+      { id: 8, name: "Дом #8", price: 95000 },
+      { id: 9, name: "Дом #9", price: 95000 },
+      { id: 10, name: "Дом #10", price: 95000 },
+      { id: 11, name: "Дом #11", price: 450000 },
+      { id: 12, name: "Дом #12", price: 95000 }
     ];
 
     let activeWikiItem = null;
@@ -231,7 +230,7 @@
       grid.innerHTML = '';
       list.forEach(item => {
         const card = document.createElement('div');
-        card.className = "bg-card border border-border rounded-xl overflow-hidden hover:border-amber-500 transition-all cursor-pointer flex flex-col group shadow-sm";
+        card.className = "bg-card border border-border rounded-xl p-4 hover:border-amber-500 transition-all cursor-pointer flex flex-col justify-between shadow-sm";
         card.onclick = () => {
           activeWikiItem = item;
           document.getElementById('modal-item-title').innerText = item.name;
@@ -242,11 +241,12 @@
           document.getElementById('catalog-item-modal').classList.remove('hidden');
         };
         card.innerHTML = `
-          <div class="relative h-36 overflow-hidden bg-background"><img src="${item.img}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/></div>
-          <div class="p-4 flex flex-col flex-1">
-            <div class="font-bold text-sm text-white">${item.name}</div>
-            <div class="text-xs text-emerald-400 font-semibold mt-1">Гос. цена: $${item.price.toLocaleString('ru-RU')}</div>
-            <div class="mt-auto pt-3"><button class="w-full py-1.5 rounded bg-primary/20 text-primary text-xs font-semibold">Выбрать</button></div>
+          <div>
+            <div class="font-bold text-base text-white mb-1">${item.name}</div>
+            <div class="text-xs text-emerald-400 font-semibold">Гос. цена: $${item.price.toLocaleString('ru-RU')}</div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-border/50">
+            <button class="w-full py-1.5 rounded bg-primary/20 hover:bg-primary text-primary hover:text-black text-xs font-semibold transition-colors">Выбрать</button>
           </div>
         `;
         grid.appendChild(card);
@@ -373,4 +373,17 @@
     function renderBP() {
       document.getElementById('btn-x2').className = isX2 ? 'px-3 py-1.5 rounded-md text-sm font-bold border border-amber-500 bg-amber-500 text-black cursor-pointer' : 'px-3 py-1.5 rounded-md text-sm font-medium border border-border bg-background hover:bg-secondary cursor-pointer';
       document.getElementById('btn-vip').className = isVip ? 'px-3 py-1.5 rounded-md text-sm font-bold border border-amber-500 bg-amber-500 text-black cursor-pointer' : 'px-3 py-1.5 rounded-md text-sm font-medium border border-border bg-background hover:bg-secondary cursor-pointer';
-      const mult = getCurrent
+      const mult = getCurrentMultiplier();
+      document.getElementById('bp-multiplier-badge').innerText = `x${mult}`;
+      const s1 = renderTasksGroup(easyTasks, 'bp-easy-grid');
+      const s2 = renderTasksGroup(mediumTasks, 'bp-medium-grid');
+      const s3 = renderTasksGroup(hardTasks, 'bp-hard-grid');
+      document.getElementById('bp-total-score').innerText = s1 + s2 + s3;
+    }
+
+    // Инициализация при старте
+    renderBP();
+    renderResell();
+  </script>
+</body>
+</html>
