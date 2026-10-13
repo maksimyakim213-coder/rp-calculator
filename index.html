@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Калькулятор RP | GTA 5 RP</title>
+  <title>RP Calculator — GTA 5 RP</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -32,14 +32,15 @@
 
   <div class="max-w-[1400px] mx-auto px-4 py-8">
     
-    <!-- Переключение основных вкладок -->
-    <div class="flex gap-2 mb-6 border-b border-border pb-4">
-      <button onclick="switchMainTab('resell')" id="btn-tab-resell" class="px-5 py-2.5 rounded-lg text-sm font-semibold bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-all cursor-pointer">💰 Перекуп</button>
-      <button onclick="switchMainTab('bp')" id="btn-tab-bp" class="px-5 py-2.5 rounded-lg text-sm font-semibold bg-primary text-primary-foreground transition-all cursor-pointer">🎮 Фарм БП</button>
+    <!-- Навигация -->
+    <div class="flex gap-2 mb-6 border-b border-border pb-4 overflow-x-auto">
+      <button onclick="switchMainTab('resell')" id="btn-tab-resell" class="px-5 py-2.5 rounded-lg text-sm font-semibold bg-primary text-primary-foreground transition-all cursor-pointer whitespace-nowrap">💰 Перекуп</button>
+      <button onclick="switchMainTab('catalog')" id="btn-tab-catalog" class="px-5 py-2.5 rounded-lg text-sm font-semibold bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-all cursor-pointer whitespace-nowrap">📦 Каталог (Wiki)</button>
+      <button onclick="switchMainTab('bp')" id="btn-tab-bp" class="px-5 py-2.5 rounded-lg text-sm font-semibold bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-all cursor-pointer whitespace-nowrap">🎮 Фарм БП</button>
     </div>
 
     <!-- ================= ВКЛАДКА 1: ПЕРЕКУП ================= -->
-    <div id="tab-resell" class="space-y-6 hidden">
+    <div id="tab-resell" class="space-y-6">
       <div class="flex items-center justify-between">
         <h1 class="text-3xl font-bold tracking-tight">Калькулятор перекупа</h1>
         <span class="text-xs px-2.5 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-full font-medium">GTA 5 RP</span>
@@ -67,7 +68,8 @@
           <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
             <div class="text-sm font-semibold text-muted-foreground mb-3">Добавление предмета</div>
             <div class="flex flex-wrap gap-3">
-              <button onclick="openManualModal()" class="inline-flex cursor-pointer items-center justify-center rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 transition-colors gap-2 shadow font-semibold">Ввести вручную</button>
+              <button onclick="switchMainTab('catalog')" class="inline-flex cursor-pointer items-center justify-center rounded-lg text-sm font-medium bg-amber-500 text-black hover:bg-amber-400 h-10 px-4 py-2 transition-colors gap-2 font-semibold shadow">📂 Выбрать из каталога Wiki</button>
+              <button onclick="openManualModal()" class="inline-flex cursor-pointer items-center justify-center rounded-lg text-sm font-medium border border-border bg-secondary hover:bg-secondary/80 h-10 px-4 py-2 transition-colors gap-2">✏️ Ввести вручную</button>
             </div>
           </div>
         </div>
@@ -91,11 +93,11 @@
               <thead>
                 <tr class="border-b border-border bg-secondary/30 text-xs text-muted-foreground uppercase tracking-wider">
                   <th class="p-4 font-semibold">Предмет</th>
+                  <th class="p-4 font-semibold">Кол-во</th>
                   <th class="p-4 font-semibold">Покупка</th>
                   <th class="p-4 font-semibold">Продажа</th>
-                  <th class="p-4 font-semibold">Комиссия</th>
+                  <th class="p-4 font-semibold">Комиссия (5%)</th>
                   <th class="p-4 font-semibold">Прибыль</th>
-                  <th class="p-4 font-semibold">ROI</th>
                   <th class="p-4 text-right font-semibold">Действие</th>
                 </tr>
               </thead>
@@ -108,42 +110,48 @@
       </div>
     </div>
 
-    <!-- ================= ВКЛАДКА 2: ФАРМ БП (Bonus Points) ================= -->
-    <div id="tab-bp" class="space-y-6">
+    <!-- ================= ВКЛАДКА 2: КАТАЛОГ ================= -->
+    <div id="tab-catalog" class="space-y-6 hidden">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 class="text-3xl font-bold tracking-tight">Каталог GTA 5 RP (Wiki)</h1>
+          <p class="text-xs text-muted-foreground mt-1">Выберите объект для расчета</p>
+        </div>
+        <input id="catalog-search" type="text" placeholder="Поиск..." oninput="filterCatalog()" class="w-full sm:w-72 rounded-lg border border-border bg-card px-4 py-2 text-sm focus:outline-none focus:border-amber-500">
+      </div>
+      <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"></div>
+    </div>
+
+    <!-- ================= ВКЛАДКА 3: ФАРМ БП ================= -->
+    <div id="tab-bp" class="space-y-6 hidden">
       <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <h1 class="text-3xl font-semibold tracking-tight flex items-center gap-2">
           Bonus Points 
           <span class="text-xs px-2 py-0.5 bg-amber-500 text-black font-bold rounded-full">New</span>
-          <span class="text-xs px-2 py-0.5 bg-secondary text-secondary-foreground rounded-full font-medium">Beta</span>
         </h1>
         <div class="flex items-center gap-2 p-2 px-4 bg-gradient-to-r from-amber-500 to-amber-600 text-black rounded-md font-extrabold text-xl shadow-lg">
           <span id="bp-total-score">0</span> BP
         </div>
       </div>
 
-      <!-- Переключатели множителей -->
       <div class="rounded-lg border border-border p-4 bg-card/60 backdrop-blur">
         <div class="flex items-center gap-2 mb-3">
           <span class="font-semibold text-sm">Множители Bonus Points:</span>
           <span id="bp-multiplier-badge" class="px-2 py-0.5 text-xs font-bold rounded bg-amber-500 text-black">x1</span>
         </div>
         <div class="flex flex-wrap gap-2">
-          <button id="btn-x2" onclick="toggleX2()" class="px-3 py-1.5 rounded-md text-sm font-medium border border-border bg-background hover:bg-secondary transition-colors cursor-pointer flex items-center gap-1.5">
-            ⚡ Акция x2
-          </button>
-          <button id="btn-vip" onclick="toggleVip()" class="px-3 py-1.5 rounded-md text-sm font-medium border border-border bg-background hover:bg-secondary transition-colors cursor-pointer flex items-center gap-1.5">
-            👑 VIP (x2)
-          </button>
+          <button id="btn-x2" onclick="toggleX2()" class="px-3 py-1.5 rounded-md text-sm font-medium border border-border bg-background hover:bg-secondary cursor-pointer">⚡ Акция x2</button>
+          <button id="btn-vip" onclick="toggleVip()" class="px-3 py-1.5 rounded-md text-sm font-medium border border-border bg-background hover:bg-secondary cursor-pointer">👑 VIP (x2)</button>
         </div>
       </div>
 
-      <!-- ЛЁГКИЕ ЗАДАНИЯ -->
+      <!-- Лёгкие задания -->
       <div class="space-y-4">
         <h2 class="text-xl font-semibold tracking-tight text-amber-500">Лёгкие задания</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="bp-easy-grid"></div>
       </div>
 
-      <!-- СРЕДНИЕ ЗАДАНИЯ -->
+      <!-- Средние задания -->
       <div class="space-y-4 pt-4">
         <h2 class="text-xl font-semibold tracking-tight text-amber-500">Средние задания</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="bp-medium-grid"></div>
@@ -152,14 +160,30 @@
 
   </div>
 
-  <!-- Модалка ручного ввода -->
+  <!-- Модалки -->
+  <div id="catalog-item-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-card border border-border rounded-xl max-w-md w-full p-6 shadow-2xl relative">
+      <h3 id="modal-item-title" class="text-lg font-bold mb-1 text-amber-500">Товар</h3>
+      <p class="text-xs text-muted-foreground mb-4">Гос. цена: <span id="modal-item-base-price" class="text-white font-semibold">$0</span></p>
+      <div class="space-y-4">
+        <div><label class="block text-xs text-muted-foreground uppercase font-semibold mb-1">Количество</label><input id="modal-item-qty" type="number" value="1" min="1" class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"></div>
+        <div><label class="block text-xs text-muted-foreground uppercase font-semibold mb-1">Покупка за 1 шт. ($)</label><input id="modal-item-buy" type="number" class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"></div>
+        <div><label class="block text-xs text-muted-foreground uppercase font-semibold mb-1">Продажа за 1 шт. ($)</label><input id="modal-item-sell" type="number" class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"></div>
+      </div>
+      <div class="flex justify-end gap-3 mt-6">
+        <button onclick="closeCatalogItemModal()" class="px-4 py-2 rounded-lg text-sm border border-border cursor-pointer">Отмена</button>
+        <button onclick="confirmCatalogDeal()" class="px-4 py-2 rounded-lg text-sm bg-amber-500 text-black font-semibold cursor-pointer">Добавить</button>
+      </div>
+    </div>
+  </div>
+
   <div id="manual-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="bg-card border border-border rounded-xl max-w-md w-full p-6 shadow-2xl relative">
-      <h3 class="text-lg font-bold mb-4">Добавить сделку вручную</h3>
+      <h3 class="text-lg font-bold mb-4">Вручную</h3>
       <div class="space-y-4">
-        <div><label class="block text-xs text-muted-foreground uppercase font-semibold mb-1">Название</label><input id="m-name" type="text" class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:border-amber-500"></div>
-        <div><label class="block text-xs text-muted-foreground uppercase font-semibold mb-1">Покупка ($)</label><input id="m-buy" type="number" class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:border-amber-500"></div>
-        <div><label class="block text-xs text-muted-foreground uppercase font-semibold mb-1">Продажа ($)</label><input id="m-sell" type="number" class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:border-amber-500"></div>
+        <div><label class="block text-xs text-muted-foreground uppercase font-semibold mb-1">Название</label><input id="m-name" type="text" class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"></div>
+        <div><label class="block text-xs text-muted-foreground uppercase font-semibold mb-1">Покупка ($)</label><input id="m-buy" type="number" class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"></div>
+        <div><label class="block text-xs text-muted-foreground uppercase font-semibold mb-1">Продажа ($)</label><input id="m-sell" type="number" class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"></div>
       </div>
       <div class="flex justify-end gap-3 mt-6">
         <button onclick="closeManualModal()" class="px-4 py-2 rounded-lg text-sm border border-border cursor-pointer">Отмена</button>
@@ -169,13 +193,121 @@
   </div>
 
   <script>
+    const wikiCatalog = [
+      { id: 1, name: 'Дом #1 (Стандарт)', price: 95000, desc: '6 мест в гараже', img: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=500&q=80' },
+      { id: 2, name: 'Дом #2 (Стандарт)', price: 95000, desc: '6 мест в гараже', img: 'https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=500&q=80' },
+      { id: 3, name: 'Дом #3 (Стандарт)', price: 95000, desc: '6 мест в гараже', img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&q=80' },
+      { id: 4, name: 'Элитный особняк', price: 1500000, desc: '10 мест в гараже', img: 'https://images.unsplash.com/photo-1613977257363-707ba9348227?w=500&q=80' },
+      { id: 5, name: 'Маска демона', price: 15000, desc: 'Аксессуар', img: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=500&q=80' },
+      { id: 6, name: 'Benefactor Krieger', price: 2800000, desc: 'Спорткар', img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=500&q=80' }
+    ];
+
+    let activeWikiItem = null;
+
     function switchMainTab(tab) {
       document.getElementById('tab-resell').classList.toggle('hidden', tab !== 'resell');
+      document.getElementById('tab-catalog').classList.toggle('hidden', tab !== 'catalog');
       document.getElementById('tab-bp').classList.toggle('hidden', tab !== 'bp');
-      document.getElementById('btn-tab-resell').className = tab === 'resell' ? 'px-5 py-2.5 rounded-lg text-sm font-semibold bg-primary text-primary-foreground transition-all cursor-pointer' : 'px-5 py-2.5 rounded-lg text-sm font-semibold bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-all cursor-pointer';
-      document.getElementById('btn-tab-bp').className = tab === 'bp' ? 'px-5 py-2.5 rounded-lg text-sm font-semibold bg-primary text-primary-foreground transition-all cursor-pointer' : 'px-5 py-2.5 rounded-lg text-sm font-semibold bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-all cursor-pointer';
+
+      document.getElementById('btn-tab-resell').className = tab === 'resell' ? 'px-5 py-2.5 rounded-lg text-sm font-semibold bg-primary text-black transition-all cursor-pointer whitespace-nowrap' : 'px-5 py-2.5 rounded-lg text-sm font-semibold bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-all cursor-pointer whitespace-nowrap';
+      document.getElementById('btn-tab-catalog').className = tab === 'catalog' ? 'px-5 py-2.5 rounded-lg text-sm font-semibold bg-primary text-black transition-all cursor-pointer whitespace-nowrap' : 'px-5 py-2.5 rounded-lg text-sm font-semibold bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-all cursor-pointer whitespace-nowrap';
+      document.getElementById('btn-tab-bp').className = tab === 'bp' ? 'px-5 py-2.5 rounded-lg text-sm font-semibold bg-primary text-black transition-all cursor-pointer whitespace-nowrap' : 'px-5 py-2.5 rounded-lg text-sm font-semibold bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-all cursor-pointer whitespace-nowrap';
+
+      if (tab === 'catalog') renderCatalog(wikiCatalog);
     }
 
+    function renderCatalog(list) {
+      const grid = document.getElementById('catalog-grid');
+      grid.innerHTML = '';
+      list.forEach(item => {
+        const card = document.createElement('div');
+        card.className = "bg-card border border-border rounded-xl overflow-hidden hover:border-amber-500 transition-all cursor-pointer flex flex-col group shadow-sm";
+        card.onclick = () => {
+          activeWikiItem = item;
+          document.getElementById('modal-item-title').innerText = item.name;
+          document.getElementById('modal-item-base-price').innerText = '$' + item.price.toLocaleString('ru-RU');
+          document.getElementById('modal-item-qty').value = 1;
+          document.getElementById('modal-item-buy').value = item.price;
+          document.getElementById('modal-item-sell').value = Math.round(item.price * 1.25);
+          document.getElementById('catalog-item-modal').classList.remove('hidden');
+        };
+        card.innerHTML = `
+          <div class="relative h-36 overflow-hidden"><img src="${item.img}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/></div>
+          <div class="p-4 flex flex-col flex-1">
+            <div class="font-bold text-sm text-white">${item.name}</div>
+            <div class="text-xs text-emerald-400 font-semibold mt-1">~ $${item.price.toLocaleString('ru-RU')}</div>
+            <div class="text-[11px] text-muted-foreground mt-2">${item.desc}</div>
+            <div class="mt-auto pt-3"><button class="w-full py-1.5 rounded bg-primary/20 text-primary text-xs font-semibold">Выбрать</button></div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function filterCatalog() {
+      const q = document.getElementById('catalog-search').value.toLowerCase();
+      renderCatalog(wikiCatalog.filter(i => i.name.toLowerCase().includes(q)));
+    }
+
+    function closeCatalogItemModal() { document.getElementById('catalog-item-modal').classList.add('hidden'); }
+    function confirmCatalogDeal() {
+      const qty = parseInt(document.getElementById('modal-item-qty').value) || 1;
+      const buy1 = parseFloat(document.getElementById('modal-item-buy').value) || 0;
+      const sell1 = parseFloat(document.getElementById('modal-item-sell').value) || 0;
+      const buy = buy1 * qty, sell = sell1 * qty, fee = sell * 0.05, profit = (sell - fee) - buy, roi = buy > 0 ? (profit/buy)*100 : 0;
+      items.push({ id: Date.now(), name: `${activeWikiItem.name} (${qty} шт.)`, qty, buy, sell, fee, profit, roi });
+      closeCatalogItemModal();
+      switchMainTab('resell');
+      saveAndRender();
+    }
+
+    let items = JSON.parse(localStorage.getItem('rp_calc_items')) || [];
+    function saveAndRender() { localStorage.setItem('rp_calc_items', JSON.stringify(items)); renderResell(); }
+    function openManualModal() { document.getElementById('manual-modal').classList.remove('hidden'); }
+    function closeManualModal() { document.getElementById('manual-modal').classList.add('hidden'); }
+    function saveManualItem() {
+      const name = document.getElementById('m-name').value.trim() || 'Предмет';
+      const buy = parseFloat(document.getElementById('m-buy').value) || 0;
+      const sell = parseFloat(document.getElementById('m-sell').value) || 0;
+      const fee = sell * 0.05, profit = (sell - fee) - buy, roi = buy > 0 ? (profit/buy)*100 : 0;
+      items.push({ id: Date.now(), name, qty: 1, buy, sell, fee, profit, roi });
+      closeManualModal();
+      saveAndRender();
+    }
+    function deleteItem(id) { items = items.filter(i => i.id !== id); saveAndRender(); }
+    function clearHistory() { if(confirm('Очистить?')) { items = []; saveAndRender(); } }
+    function formatMoney(num) { return (num >= 0 ? '+' : '') + '$' + Math.round(num).toLocaleString('ru-RU'); }
+
+    function renderResell() {
+      let net = 0, turn = 0, inv = 0;
+      items.forEach(i => { net += i.profit; turn += i.sell; inv += i.buy; });
+      const roi = inv > 0 ? ((net/inv)*100).toFixed(1) : 0;
+      document.getElementById('stat-net').innerText = formatMoney(net);
+      document.getElementById('stat-roi').innerText = roi + ' %';
+      document.getElementById('stat-turnover').innerText = '$' + Math.round(turn).toLocaleString('ru-RU');
+
+      const historyContainer = document.getElementById('history-container');
+      const tableBody = document.getElementById('logs-table-body');
+      if (items.length === 0) {
+        historyContainer.innerHTML = `<div class="text-sm text-muted-foreground text-center py-8">Пусто.</div>`;
+        tableBody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-muted-foreground">Нет данных</td></tr>`;
+        return;
+      }
+      historyContainer.innerHTML = ''; tableBody.innerHTML = '';
+      [...items].reverse().forEach(item => {
+        const card = document.createElement('div');
+        card.className = "flex items-center justify-between p-3 rounded-lg border border-border bg-background/50";
+        card.innerHTML = `<div><div class="font-medium text-sm">${item.name}</div><div class="text-xs text-muted-foreground">Продажа: $${item.sell.toLocaleString('ru-RU')}</div></div><div class="flex items-center gap-3"><span class="text-sm font-bold ${item.profit >= 0 ? 'text-emerald-400' : 'text-red-400'}">${formatMoney(item.profit)}</span><button onclick="deleteItem(${item.id})" class="text-muted-foreground hover:text-destructive cursor-pointer">✕</button></div>`;
+        historyContainer.appendChild(card);
+
+        const row = document.createElement('tr');
+        row.className = "hover:bg-secondary/20 transition-colors";
+        row.innerHTML = `<td class="p-4 font-medium">${item.name}</td><td class="p-4">${item.qty} шт.</td><td class="p-4">$${item.buy.toLocaleString('ru-RU')}</td><td class="p-4">$${item.sell.toLocaleString('ru-RU')}</td><td class="p-4 text-muted-foreground">-$${Math.round(item.fee).toLocaleString('ru-RU')}</td><td class="p-4 font-bold ${item.profit >= 0 ? 'text-emerald-400' : 'text-red-400'}">${formatMoney(item.profit)}</td><td class="p-4 text-right"><button onclick="deleteItem(${item.id})" class="text-muted-foreground hover:text-destructive cursor-pointer">Удалить</button></td>`;
+        tableBody.appendChild(row);
+      });
+    }
+
+    // БП ЛОГИКА СО ВСЕМИ ЗАДАНИЯМИ
     let isX2 = JSON.parse(localStorage.getItem('bp_is_x2')) || false;
     let isVip = JSON.parse(localStorage.getItem('bp_is_vip')) || false;
     let completedTasks = JSON.parse(localStorage.getItem('bp_completed')) || {};
@@ -200,133 +332,38 @@
       { id: 'm8', title: 'Кинуть мяч питомцу 15 раз', reward: 2 }
     ];
 
-    function toggleX2() {
-      isX2 = !isX2;
-      localStorage.setItem('bp_is_x2', isX2);
-      renderBP();
-    }
-
-    function toggleVip() {
-      isVip = !isVip;
-      localStorage.setItem('bp_is_vip', isVip);
-      renderBP();
-    }
-
-    function toggleTask(id) {
-      completedTasks[id] = !completedTasks[id];
-      localStorage.setItem('bp_completed', JSON.stringify(completedTasks));
-      renderBP();
-    }
-
-    function getCurrentMultiplier() {
-      let mult = 1;
-      if (isX2) mult *= 2;
-      if (isVip) mult *= 2;
-      return mult;
-    }
+    function toggleX2() { isX2 = !isX2; localStorage.setItem('bp_is_x2', isX2); renderBP(); }
+    function toggleVip() { isVip = !isVip; localStorage.setItem('bp_is_vip', isVip); renderBP(); }
+    function toggleTask(id) { completedTasks[id] = !completedTasks[id]; localStorage.setItem('bp_completed', JSON.stringify(completedTasks)); renderBP(); }
+    function getCurrentMultiplier() { let m = 1; if(isX2) m *= 2; if(isVip) m *= 2; return m; }
 
     function renderTasksGroup(tasks, containerId) {
       const grid = document.getElementById(containerId);
       grid.innerHTML = '';
       const mult = getCurrentMultiplier();
       let sum = 0;
-
       tasks.forEach(task => {
         const isDone = completedTasks[task.id];
         const finalReward = task.reward * mult;
-        if (isDone) sum += finalReward;
-
+        if(isDone) sum += finalReward;
         const card = document.createElement('button');
         card.type = 'button';
         card.onclick = () => toggleTask(task.id);
         card.className = `relative rounded-xl flex flex-col border p-5 text-left transition-all duration-200 cursor-pointer ${isDone ? 'border-amber-500 bg-amber-500/10' : 'border-border bg-card hover:bg-secondary/40'}`;
-        card.innerHTML = `
-          <h3 class="text-sm font-semibold text-foreground">${task.title}</h3>
-          <span class="text-xl font-bold mt-2 text-amber-400">${finalReward} BP</span>
-          <span class="text-xs text-muted-foreground mt-3 mt-auto">${isDone ? '✓ Выполнено' : 'Нажмите чтобы отметить'}</span>
-          ${isDone ? '<div class="absolute top-3 right-3 text-amber-400 font-bold">✓</div>' : ''}
-        `;
+        card.innerHTML = `<h3 class="text-sm font-semibold">${task.title}</h3><span class="text-xl font-bold mt-2 text-amber-400">${finalReward} BP</span><span class="text-xs text-muted-foreground mt-3 mt-auto">${isDone ? '✓ Выполнено' : 'Нажмите чтобы отметить'}</span>`;
         grid.appendChild(card);
       });
-
       return sum;
     }
 
     function renderBP() {
-      const btnX2 = document.getElementById('btn-x2');
-      const btnVip = document.getElementById('btn-vip');
-      
-      btnX2.className = isX2 ? 'px-3 py-1.5 rounded-md text-sm font-bold border border-amber-500 bg-amber-500 text-black cursor-pointer' : 'px-3 py-1.5 rounded-md text-sm font-medium border border-border bg-background hover:bg-secondary cursor-pointer';
-      btnVip.className = isVip ? 'px-3 py-1.5 rounded-md text-sm font-bold border border-amber-500 bg-amber-500 text-black cursor-pointer' : 'px-3 py-1.5 rounded-md text-sm font-medium border border-border bg-background hover:bg-secondary cursor-pointer';
-
+      document.getElementById('btn-x2').className = isX2 ? 'px-3 py-1.5 rounded-md text-sm font-bold border border-amber-500 bg-amber-500 text-black cursor-pointer' : 'px-3 py-1.5 rounded-md text-sm font-medium border border-border bg-background hover:bg-secondary cursor-pointer';
+      document.getElementById('btn-vip').className = isVip ? 'px-3 py-1.5 rounded-md text-sm font-bold border border-amber-500 bg-amber-500 text-black cursor-pointer' : 'px-3 py-1.5 rounded-md text-sm font-medium border border-border bg-background hover:bg-secondary cursor-pointer';
       const mult = getCurrentMultiplier();
       document.getElementById('bp-multiplier-badge').innerText = `x${mult}`;
-
-      const scoreEasy = renderTasksGroup(easyTasks, 'bp-easy-grid');
-      const scoreMed = renderTasksGroup(mediumTasks, 'bp-medium-grid');
-
-      document.getElementById('bp-total-score').innerText = scoreEasy + scoreMed;
-    }
-
-    let items = JSON.parse(localStorage.getItem('rp_calc_items')) || [];
-    function saveAndRender() { localStorage.setItem('rp_calc_items', JSON.stringify(items)); renderResell(); }
-    function openManualModal() { document.getElementById('manual-modal').classList.remove('hidden'); }
-    function closeManualModal() { document.getElementById('manual-modal').classList.add('hidden'); }
-
-    function saveManualItem() {
-      const name = document.getElementById('m-name').value.trim() || 'Предмет';
-      const buy = parseFloat(document.getElementById('m-buy').value) || 0;
-      const sell = parseFloat(document.getElementById('m-sell').value) || 0;
-      const fee = sell * 0.05;
-      const profit = (sell - fee) - buy;
-      const roi = buy > 0 ? (profit / buy) * 100 : 0;
-
-      items.push({ id: Date.now(), type: 'trade', name, buy, sell, fee, profit, roi });
-      closeManualModal();
-      document.getElementById('m-name').value = '';
-      document.getElementById('m-buy').value = '';
-      document.getElementById('m-sell').value = '';
-      saveAndRender();
-    }
-
-    function deleteItem(id) { items = items.filter(i => i.id !== id); saveAndRender(); }
-    function clearHistory() { if (confirm('Очистить историю?')) { items = []; saveAndRender(); } }
-    function formatMoney(num) { return (num >= 0 ? '+' : '') + '$' + Math.round(num).toLocaleString('ru-RU'); }
-
-    function renderResell() {
-      let totalNet = 0, totalTurnover = 0, totalInvested = 0;
-      items.forEach(i => { totalNet += i.profit; totalTurnover += i.sell; totalInvested += i.buy; });
-      const totalRoi = totalInvested > 0 ? ((totalNet / totalInvested) * 100).toFixed(1) : 0;
-
-      const netEl = document.getElementById('stat-net');
-      netEl.innerText = formatMoney(totalNet);
-      netEl.className = `text-2xl sm:text-3xl font-bold mt-1 ${totalNet >= 0 ? 'text-emerald-400' : 'text-red-400'}`;
-      document.getElementById('stat-roi').innerText = totalRoi + ' %';
-      document.getElementById('stat-turnover').innerText = '$' + Math.round(totalTurnover).toLocaleString('ru-RU');
-
-      const historyContainer = document.getElementById('history-container');
-      const tableBody = document.getElementById('logs-table-body');
-
-      if (items.length === 0) {
-        historyContainer.innerHTML = `<div class="text-sm text-muted-foreground text-center py-8">История пуста.</div>`;
-        tableBody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-muted-foreground">Нет данных</td></tr>`;
-        return;
-      }
-
-      historyContainer.innerHTML = '';
-      tableBody.innerHTML = '';
-
-      [...items].reverse().forEach(item => {
-        const card = document.createElement('div');
-        card.className = "flex items-center justify-between p-3 rounded-lg border border-border bg-background/50 hover:bg-background transition-colors";
-        card.innerHTML = `<div><div class="font-medium text-sm">${item.name}</div><div class="text-xs text-muted-foreground">Продажа: $${item.sell.toLocaleString('ru-RU')}</div></div><div class="flex items-center gap-3"><span class="text-sm font-bold ${item.profit >= 0 ? 'text-emerald-400' : 'text-red-400'}">${formatMoney(item.profit)}</span><button onclick="deleteItem(${item.id})" class="text-muted-foreground hover:text-destructive cursor-pointer">✕</button></div>`;
-        historyContainer.appendChild(card);
-
-        const row = document.createElement('tr');
-        row.className = "hover:bg-secondary/20 transition-colors";
-        row.innerHTML = `<td class="p-4 font-medium">${item.name}</td><td class="p-4">$${item.buy.toLocaleString('ru-RU')}</td><td class="p-4">$${item.sell.toLocaleString('ru-RU')}</td><td class="p-4 text-muted-foreground">-$${Math.round(item.fee).toLocaleString('ru-RU')}</td><td class="p-4 font-bold ${item.profit >= 0 ? 'text-emerald-400' : 'text-red-400'}">${formatMoney(item.profit)}</td><td class="p-4 text-amber-400 font-medium">${item.roi.toFixed(1)}%</td><td class="p-4 text-right"><button onclick="deleteItem(${item.id})" class="text-muted-foreground hover:text-destructive cursor-pointer">Удалить</button></td>`;
-        tableBody.appendChild(row);
-      });
+      const s1 = renderTasksGroup(easyTasks, 'bp-easy-grid');
+      const s2 = renderTasksGroup(mediumTasks, 'bp-medium-grid');
+      document.getElementById('bp-total-score').innerText = s1 + s2;
     }
 
     renderResell();
